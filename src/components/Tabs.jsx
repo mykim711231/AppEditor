@@ -19,7 +19,7 @@ export default function Tabs() {
           <div
             key={id}
             onClick={() => setActiveTab(id)}
-            className={`flex shrink-0 items-center gap-1 border-r border-slate-200 px-3 py-1.5 text-xs dark:border-slate-700 ${
+            className={`flex min-h-[44px] shrink-0 items-center gap-1 border-r border-slate-200 pl-3 pr-1 text-xs dark:border-slate-700 ${
               active
                 ? 'bg-white text-slate-900 dark:bg-slate-900 dark:text-white'
                 : 'text-slate-500 dark:text-slate-400'
@@ -31,7 +31,7 @@ export default function Tabs() {
                 e.stopPropagation()
                 closeTab(id)
               }}
-              className="ml-1 rounded px-1 text-slate-400 hover:bg-slate-300 hover:text-slate-700 dark:hover:bg-slate-600 dark:hover:text-white"
+              className="ml-1 flex h-9 w-9 items-center justify-center rounded text-slate-400 hover:bg-slate-300 hover:text-slate-700 dark:hover:bg-slate-600 dark:hover:text-white"
               aria-label="탭 닫기"
             >
               ×

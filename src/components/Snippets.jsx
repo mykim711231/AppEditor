@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import Modal from './Modal'
-import { useStore } from '../store'
+import { useStore, uiAlert } from '../store'
 
 export default function Snippets() {
   const snippets = useStore((s) => s.snippets)
@@ -29,7 +29,7 @@ export default function Snippets() {
 
   const onInsert = (sn) => {
     if (!file) {
-      alert('먼저 파일을 열어주세요.')
+      uiAlert({ title: '알림', message: '먼저 파일을 열어주세요.' })
       return
     }
     updateContent(file.id, (file.content || '') + (file.content ? '\n' : '') + sn.code)

@@ -3,6 +3,7 @@ import {
   DndContext,
   closestCenter,
   PointerSensor,
+  TouchSensor,
   useSensor,
   useSensors,
 } from '@dnd-kit/core'
@@ -13,7 +14,7 @@ import {
   arrayMove,
 } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
-import { useStore } from '../store'
+import { useStore, uiPrompt, uiConfirm } from '../store'
 
 // 드래그로 순서 변경되는 AI 행
 function SortableAIRow({ ai, selected, onSelect }) {
@@ -68,7 +69,10 @@ export default function AISelector() {
   const currentId = selectedAiId && ais.some((a) => a.id === selectedAiId) ? selectedAiId : ais[0]?.id
   const current = ais.find((a) => a.id === currentId)
 
-  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 6 } }))
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
+    useSensor(TouchSensor, { activationConstraint: { delay: 200, tolerance: 6 } })
+  )
 
   const flash = (t) => {
     setToast(t)
@@ -80,28 +84,29 @@ export default function AISelector() {
     setBusy(true)
     try {
       const res = await sendQuestion(current)
-      flash(
-        res.copied
-          ? `${current.name} 새 탭 열림 · 코드+질문 복사됨`
-          : `${current.name} 열림 (복사 실패: 수동 복사 필요)`
-      )
+      let msg
+      if (!res.opened) msg = `${current.name} 열기 차단됨 — 팝업 허용 후 다시 시도`
+      else if (res.copied) msg = `${current.name} 열림 · 코드+질문 복사됨 (붙여넣기)`
+      else msg = `${current.name} 열림 (복사 실패: 수동 복사 필요)`
+      flash(msg)
     } finally {
       setBusy(false)
     }
   }
 
-  const onAdd = () => {
-    const name = prompt('AI 이름')
+  const onAdd = async () => {
+    const name = await uiPrompt({ title: 'AI 추가', placeholder: '이름 (예: MyAI)' })
     if (!name || !name.trim()) return
-    const url = prompt('AI URL (https://...)', 'https://')
+    const url = await uiPrompt({ title: 'AI URL', defaultValue: 'https://', placeholder: 'https://...' })
     if (!url || !url.trim()) return
-    const icon = prompt('아이콘 이모지', '🤖') || '🤖'
+    const icon = (await uiPrompt({ title: '아이콘 이모지', defaultValue: '🤖' })) || '🤖'
     addAI({ name: name.trim(), url: url.trim(), icon: icon.trim() })
   }
 
-  const onRemove = () => {
+  const onRemove = async () => {
     if (!current) return
-    if (confirm(`"${current.name}" 를 목록에서 삭제할까요?`)) removeAI(current.id)
+    if (await uiConfirm({ title: 'AI 삭제', message: `"${current.name}" 를 목록에서 삭제할까요?`, danger: true }))
+      removeAI(current.id)
   }
 
   const onDragEnd = (e) => {

@@ -46,6 +46,22 @@ export default defineConfig({
             handler: 'StaleWhileRevalidate',
             options: { cacheName: 'app-shell' },
           },
+          {
+            // Google Fonts 스타일시트
+            urlPattern: ({ url }) => url.origin === 'https://fonts.googleapis.com',
+            handler: 'StaleWhileRevalidate',
+            options: { cacheName: 'google-fonts-stylesheets' },
+          },
+          {
+            // Google Fonts 폰트 파일 (오프라인 시 폰트 누락으로 인한 레이아웃 깨짐 방지)
+            urlPattern: ({ url }) => url.origin === 'https://fonts.gstatic.com',
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'google-fonts-webfonts',
+              expiration: { maxEntries: 30, maxAgeSeconds: 60 * 60 * 24 * 365 },
+              cacheableResponse: { statuses: [0, 200] },
+            },
+          },
         ],
       },
     }),

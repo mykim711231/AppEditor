@@ -15,10 +15,32 @@ body,
   margin: 0;
 }
 
+/* 동적 뷰포트 높이: 모바일 주소창/키보드 변화에 대응 (dvh 지원 시) */
+@supports (height: 100dvh) {
+  html,
+  body,
+  #root {
+    height: 100dvh;
+  }
+}
+
 body {
   overscroll-behavior: none;
   -webkit-tap-highlight-color: transparent;
   font-family: system-ui, -apple-system, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+}
+
+/* 코드 에디터 스크롤이 페이지로 전파되지 않도록 (당겨서 새로고침 방지) */
+.cm-scroller {
+  overscroll-behavior: contain;
+}
+
+/* 가로 제스처 바 영역 보호 */
+.safe-left {
+  padding-left: env(safe-area-inset-left);
+}
+.safe-right {
+  padding-right: env(safe-area-inset-right);
 }
 
 /* iOS 안전 영역 대응 */

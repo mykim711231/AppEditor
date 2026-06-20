@@ -30,7 +30,8 @@
 ### 부가 기능
 - 코드 스니펫 저장·삽입·관리 (localStorage)
 - AI 질문 히스토리 검색·삭제 (IndexedDB)
-- 메뉴 숨김(👁 집중 모드), 스와이프로 AI 패널 토글, 단축키(Cmd+B / Esc)
+- 좌상단 툴바(≡ 메뉴 / ▭ 사이드 토글 / 🔍 검색), 전체 파일 검색(이름+내용)
+- 메뉴 숨김(👁 집중 모드), 스와이프로 AI 패널 토글, 단축키(Cmd+B 사이드 / Cmd+P 검색 / Esc 집중)
 - 반응형 레이아웃 (아이폰 단일 컬럼 ↔ 태블릿 분할), Samsung DeX·S Pen 대응
 
 ### PWA
@@ -75,11 +76,13 @@ npm run icons      # SVG로부터 PWA 아이콘(PNG) 재생성
 앱 우상단 **⚙️ 설정 → ☁️ Google Drive 연동**에서 직접 구성합니다 (코드/.env 수정 불필요).
 
 1. [Google Cloud Console](https://console.cloud.google.com/)에서 **OAuth 클라이언트 ID**(웹 애플리케이션) 생성
-2. **승인된 JavaScript 원본**에 배포 주소(`https://mykim711231.github.io`, 로컬은 `http://localhost:5173`) 추가
-3. **Google Drive API** 사용 설정
-4. 발급된 클라이언트 ID를 설정 화면에 입력 → **Google 계정 연결** → **지금 백업 / 복원**
+2. **승인된 JavaScript 원본**: `https://mykim711231.github.io` (로컬 `http://localhost:5173`)
+3. **승인된 리다이렉트 URI**: `https://mykim711231.github.io/AppEditor/` ← 설치형 앱(standalone) 로그인에 필수
+4. **Google Drive API** 사용 설정
+5. 발급된 클라이언트 ID를 설정 화면에 입력 → **Google 계정 연결** → **지금 백업 / 복원**
 
 - API 키 불필요 (브라우저 OAuth 토큰만 사용), 접근 범위 `drive.file`(앱이 만든 파일만)
+- 일반 브라우저는 팝업 로그인, **설치형 앱은 전체 페이지 리다이렉트 로그인**(팝업 차단 회피)
 - 백업은 Drive에 `appeditor-backup.json` 1개로 저장(파일·스니펫·AI 목록 포함)
 - "편집 시 자동 백업" 켜면 저장 위치가 Google Drive일 때 변경분을 자동 업로드
 

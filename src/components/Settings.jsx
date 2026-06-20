@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import Modal from './Modal'
-import { useStore } from '../store'
+import { useStore, uiConfirm } from '../store'
 import { connect, disconnect, isConnected, uploadBackup, downloadBackup } from '../lib/gdrive'
 
 const FONTS = ['Fira Code', 'JetBrains Mono', 'Source Code Pro', 'system-ui']
@@ -18,6 +18,9 @@ export default function Settings() {
   const [msg, setMsg] = useState(null) // { type: 'ok'|'err', text }
 
   const origin = typeof window !== 'undefined' ? window.location.origin : ''
+  const redirectUri =
+    typeof window !== 'undefined' ? window.location.origin + window.location.pathname : ''
+  const supportsFS = typeof window !== 'undefined' && 'showDirectoryPicker' in window
 
   const flash = (type, text) => {
     setMsg({ type, text })
@@ -69,7 +72,14 @@ export default function Settings() {
   }
 
   const onRestore = async () => {
-    if (!confirm('Drive 백업으로 현재 파일을 덮어쓸까요? 현재 편집 내용은 사라집니다.')) return
+    if (
+      !(await uiConfirm({
+        title: 'Drive 복원',
+        message: 'Drive 백업으로 현재 파일을 덮어쓸까요? 현재 편집 내용은 사라집니다.',
+        danger: true,
+      }))
+    )
+      return
     setBusy('restore')
     try {
       if (!isConnected()) await connect(settings.googleClientId || clientId.trim())
@@ -153,7 +163,7 @@ export default function Settings() {
           <div className="space-y-1.5">
             {[
               ['indexeddb', '브라우저 내부 (IndexedDB) — 기본값', true],
-              ['local', '기기 로컬 폴더 (Chrome/갤럭시)', true],
+              ['local', '기기 로컬 폴더 (Chrome/갤럭시)', supportsFS],
               ['gdrive', 'Google Drive (아래에서 연결)', true],
             ].map(([val, label, enabled]) => (
               <label
@@ -176,8 +186,9 @@ export default function Settings() {
             ))}
           </div>
           <p className="mt-1 text-xs text-slate-400">
-            ※ 아이폰 Safari는 로컬 폴더 저장을 지원하지 않습니다. Google Drive는 아래에서
-            연결하세요.
+            ※ 로컬 폴더는 File System Access API 지원 브라우저(Chrome/삼성인터넷 등)에서만
+            선택 가능합니다{!supportsFS && ' (현재 기기 미지원)'}. 아이폰 Safari는 미지원이니
+            브라우저 내부 또는 Google Drive를 사용하세요.
           </p>
         </div>
 
@@ -276,11 +287,21 @@ export default function Settings() {
                 <b>OAuth 클라이언트 ID 만들기</b> (유형: 웹 애플리케이션)
               </li>
               <li>
-                <b>승인된 JavaScript 원본</b>에 아래 주소를 추가:
+                <b>승인된 JavaScript 원본</b>에 추가:
                 <code className="ml-1 rounded bg-slate-100 px-1 dark:bg-slate-800">{origin}</code>
+              </li>
+              <li>
+                <b>승인된 리다이렉트 URI</b>에 추가(설치형 앱 모드 필수):
+                <code className="ml-1 break-all rounded bg-slate-100 px-1 dark:bg-slate-800">
+                  {redirectUri}
+                </code>
               </li>
               <li>Google Drive API 사용 설정 후, 생성된 클라이언트 ID를 위에 입력</li>
               <li>접근 범위는 앱이 만든 파일만(drive.file)이라 다른 Drive 파일은 안전합니다.</li>
+              <li>
+                홈 화면에 설치한 앱에서는 팝업 대신 <b>전체 페이지 리다이렉트</b>로
+                로그인합니다(팝업 차단 회피).
+              </li>
             </ol>
           </details>
         </div>

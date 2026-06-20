@@ -1,4 +1,5 @@
 import { useStore } from '../store'
+import TextInput from './ui/TextInput'
 
 // 하단 질의 바: 질문 입력 + 질문 범위(라디오). 현재 위치 유지.
 // AI 선택/전송은 사이드바의 AISelector 로 분리됨.
@@ -25,11 +26,11 @@ export default function QuestionBar() {
 
       {/* 질문 입력 */}
       <div className="px-2">
-        <input
+        <TextInput
           value={aiQuestion}
-          onChange={(e) => setAiQuestion(e.target.value)}
+          onChange={setAiQuestion}
           placeholder="AI에게 보낼 질문을 입력하세요"
-          className="w-full rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm text-slate-900 outline-none focus:border-blue-400 dark:border-slate-600 dark:bg-slate-800 dark:text-white"
+          className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-blue-400 dark:border-slate-600 dark:bg-slate-800 dark:text-white"
         />
       </div>
 
@@ -56,7 +57,10 @@ export default function QuestionBar() {
         {aiScope === 'selection' && codeSelection && (
           <span className="text-blue-500">({codeSelection.length}자 선택됨)</span>
         )}
-        <span className="ml-auto text-slate-400">AI 선택 → 사이드바 ☰</span>
+        {aiScope === 'selection' && !codeSelection && (
+          <span className="text-amber-500">⚠️ 선택 없음 → 전체 파일 전송</span>
+        )}
+        <span className="ml-auto text-slate-400">AI 선택 → 사이드바</span>
       </div>
     </div>
   )

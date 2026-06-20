@@ -16,8 +16,15 @@ const LS = {
   set(key, value) {
     try {
       localStorage.setItem(key, JSON.stringify(value))
+      return true
     } catch {
-      /* 저장 용량 초과 등 무시 */
+      // 저장 용량 초과 등 — 조용히 삼키지 않고 사용자에게 알림
+      try {
+        useStore.getState().notify('저장 공간 부족 — 일부 설정이 저장되지 않았습니다.')
+      } catch {
+        /* 무시 */
+      }
+      return false
     }
   },
 }
@@ -68,14 +75,30 @@ export const useStore = create((set, get) => ({
   selectedAiId: null, // 사이드바 콤보박스에서 고른 AI (null이면 첫 번째)
 
   // UI 상태
-  sidebarOpen: true,
+  sidebarOpen: typeof window !== 'undefined' ? window.innerWidth >= 768 : true,
   barsHidden: false, // 👁 집중 모드
   aiPanelOpen: false,
-  activeModal: null, // 'settings' | 'snippets' | 'history' | null
+  activeModal: null, // 'settings' | 'snippets' | 'history' | 'search' | null
+  menuOpen: false, // 좌상단 ≡ 메뉴
+  dialog: null, // 인앱 다이얼로그 (prompt/confirm/alert)
+  notice: '', // 전역 토스트 알림
 
   // ---- 초기화 ----
   async init() {
     applyTheme(get().settings.theme)
+    // Google Drive 리다이렉트 복귀 토큰 처리
+    try {
+      const { consumeRedirect } = await import('./lib/gdrive')
+      if (consumeRedirect()) set({ notice: 'Google Drive 연결됨' })
+    } catch {
+      /* 무시 */
+    }
+    // IndexedDB 영구 저장 요청 (iOS ITP 7일 제거·스토리지 압박 대비)
+    try {
+      if (navigator.storage?.persist) await navigator.storage.persist()
+    } catch {
+      /* 무시 */
+    }
     let nodes = await db.loadAllNodes()
     if (nodes.length === 0) {
       // 첫 실행: 샘플 파일 생성
@@ -319,8 +342,21 @@ export const useStore = create((set, get) => ({
     if (!data || !Array.isArray(data.nodes)) {
       throw new Error('백업 데이터 형식이 올바르지 않습니다.')
     }
-    await db.clearFiles()
-    await db.putNodes(data.nodes)
+    // 실패 대비 롤백 스냅샷
+    const backupNodes = get().nodes
+    try {
+      await db.clearFiles()
+      await db.putNodes(data.nodes)
+    } catch (e) {
+      // 복원 실패 시 기존 데이터 되돌리기
+      try {
+        await db.clearFiles()
+        await db.putNodes(backupNodes)
+      } catch {
+        /* 무시 */
+      }
+      throw new Error('복원 실패 — 기존 파일을 되돌렸습니다. (' + e.message + ')')
+    }
     const firstFile = data.nodes.find((n) => n.type === 'file')
     set({
       nodes: data.nodes,
@@ -353,10 +389,43 @@ export const useStore = create((set, get) => ({
     }, 3000)
   },
 
+  // ---- 인앱 다이얼로그 (네이티브 prompt/confirm/alert 대체) ----
+  openDialog(cfg) {
+    return new Promise((resolve) => set({ dialog: { ...cfg, resolve } }))
+  },
+  resolveDialog(value) {
+    const d = get().dialog
+    set({ dialog: null })
+    if (d) d.resolve(value)
+  },
+
+  // 전역 토스트
+  notify(msg) {
+    set({ notice: msg })
+  },
+  clearNotice() {
+    set({ notice: '' })
+  },
+
   // ---- UI ----
-  toggleSidebar: () => set((s) => ({ sidebarOpen: !s.sidebarOpen })),
+  toggleSidebar: () =>
+    set((s) => ({ sidebarOpen: !s.sidebarOpen, barsHidden: false })),
   toggleBars: () => set((s) => ({ barsHidden: !s.barsHidden })),
   setAiPanel: (open) => set({ aiPanelOpen: open }),
-  openModal: (m) => set({ activeModal: m }),
+  setSidebar: (open) => set({ sidebarOpen: open, barsHidden: false }),
+  toggleMenu: () => set((s) => ({ menuOpen: !s.menuOpen })),
+  closeMenu: () => set({ menuOpen: false }),
+  openModal: (m) => set({ activeModal: m, menuOpen: false }),
   closeModal: () => set({ activeModal: null }),
 }))
+
+// ---- 인앱 다이얼로그 헬퍼 (Promise 반환) ----
+export function uiPrompt({ title, message = '', defaultValue = '', placeholder = '' }) {
+  return useStore.getState().openDialog({ kind: 'prompt', title, message, defaultValue, placeholder })
+}
+export function uiConfirm({ title, message = '', danger = false }) {
+  return useStore.getState().openDialog({ kind: 'confirm', title, message, danger })
+}
+export function uiAlert({ title, message = '' }) {
+  return useStore.getState().openDialog({ kind: 'alert', title, message })
+}

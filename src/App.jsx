@@ -9,6 +9,8 @@ import QuestionBar from './components/QuestionBar'
 import Settings from './components/Settings'
 import Snippets from './components/Snippets'
 import History from './components/History'
+import SearchModal from './components/SearchModal'
+import DialogHost from './components/DialogHost'
 
 export default function App() {
   const init = useStore((s) => s.init)
@@ -17,10 +19,14 @@ export default function App() {
   const barsHidden = useStore((s) => s.barsHidden)
   const aiPanelOpen = useStore((s) => s.aiPanelOpen)
   const setAiPanel = useStore((s) => s.setAiPanel)
+  const setSidebar = useStore((s) => s.setSidebar)
   const toggleSidebar = useStore((s) => s.toggleSidebar)
   const toggleBars = useStore((s) => s.toggleBars)
   const setCodeSelection = useStore((s) => s.setCodeSelection)
   const activeModal = useStore((s) => s.activeModal)
+  const openModal = useStore((s) => s.openModal)
+  const notice = useStore((s) => s.notice)
+  const clearNotice = useStore((s) => s.clearNotice)
 
   const touchStart = useRef(null)
 
@@ -28,23 +34,38 @@ export default function App() {
     init()
   }, [init])
 
-  // 외부 키보드 단축키: Cmd/Ctrl+B 사이드바, Esc 집중 모드
+  // 토스트 자동 사라짐
+  useEffect(() => {
+    if (!notice) return
+    const t = setTimeout(clearNotice, 2800)
+    return () => clearTimeout(t)
+  }, [notice, clearNotice])
+
+  // 외부 키보드 단축키: Cmd/Ctrl+B 사이드바, Cmd/Ctrl+P 검색, Esc 집중 모드
   useEffect(() => {
     const onKey = (e) => {
-      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'b') {
+      const mod = e.metaKey || e.ctrlKey
+      if (mod && e.key.toLowerCase() === 'b') {
         e.preventDefault()
         toggleSidebar()
+      } else if (mod && (e.key.toLowerCase() === 'p' || e.key.toLowerCase() === 'k')) {
+        e.preventDefault()
+        openModal('search')
       } else if (e.key === 'Escape') {
         toggleBars()
       }
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [toggleSidebar, toggleBars])
+  }, [toggleSidebar, toggleBars, openModal])
 
-  // 스와이프 위/아래로 AI 패널 표시·숨김 (터치 기기)
+  // 스와이프 위/아래로 AI 패널 표시·숨김 — 단, 에디터 내부 터치는 제외(스크롤 보호)
   const onTouchStart = (e) => {
     if (e.touches.length !== 1) return
+    if (e.target.closest?.('.cm-editor')) {
+      touchStart.current = null
+      return
+    }
     touchStart.current = { y: e.touches[0].clientY, x: e.touches[0].clientX }
   }
   const onTouchEnd = (e) => {
@@ -52,8 +73,8 @@ export default function App() {
     const dy = e.changedTouches[0].clientY - touchStart.current.y
     const dx = Math.abs(e.changedTouches[0].clientX - touchStart.current.x)
     if (Math.abs(dy) > 60 && dx < 50) {
-      if (dy < 0) setAiPanel(true) // 위로 스와이프 → 표시
-      else setAiPanel(false) // 아래로 스와이프 → 숨김
+      if (dy < 0) setAiPanel(true)
+      else setAiPanel(false)
     }
     touchStart.current = null
   }
@@ -69,22 +90,28 @@ export default function App() {
     )
   }
 
-  // 하단 질의 바 표시 여부: 집중 모드가 아니거나 스와이프/FAB로 열린 경우
   const showQuestionBar = !barsHidden || aiPanelOpen
+  const showSidebar = sidebarOpen && !barsHidden
 
   return (
     <div className="flex h-full flex-col bg-white dark:bg-slate-900">
       <TopBar />
 
-      <div className="flex min-h-0 flex-1">
-        {/* 사이드바: 파일 탐색기 + AI 선택(콤보박스) */}
-        {sidebarOpen && !barsHidden && (
-          <aside className="flex w-56 shrink-0 flex-col border-r border-slate-200 bg-slate-50 dark:border-slate-700 dark:bg-slate-800/50 md:w-64">
-            <div className="min-h-0 flex-1 overflow-hidden">
-              <FileExplorer />
-            </div>
-            <AISelector />
-          </aside>
+      <div className="relative flex min-h-0 flex-1">
+        {/* 사이드바: 작은 화면에선 오버레이 + 백드롭, md 이상은 인라인 */}
+        {showSidebar && (
+          <>
+            <div
+              className="absolute inset-0 z-30 bg-black/40 md:hidden"
+              onClick={() => setSidebar(false)}
+            />
+            <aside className="safe-left absolute inset-y-0 left-0 z-40 flex w-72 max-w-[85vw] flex-col border-r border-slate-200 bg-slate-50 shadow-xl dark:border-slate-700 dark:bg-slate-800 md:static md:z-auto md:w-64 md:max-w-none md:shadow-none">
+              <div className="min-h-0 flex-1 overflow-hidden">
+                <FileExplorer />
+              </div>
+              <AISelector />
+            </aside>
+          </>
         )}
 
         {/* 메인 편집 영역 */}
@@ -101,7 +128,7 @@ export default function App() {
         </main>
       </div>
 
-      {/* 집중 모드에서 질의 바가 숨겨졌을 때: 어디서든 질의 바 호출 (스와이프 대체) */}
+      {/* 집중 모드에서 질의 바가 숨겨졌을 때: 어디서든 질의 바 호출 */}
       {barsHidden && !aiPanelOpen && (
         <button
           onClick={() => setAiPanel(true)}
@@ -117,6 +144,15 @@ export default function App() {
       {activeModal === 'settings' && <Settings />}
       {activeModal === 'snippets' && <Snippets />}
       {activeModal === 'history' && <History />}
+      {activeModal === 'search' && <SearchModal />}
+
+      {/* 인앱 다이얼로그 + 전역 토스트 */}
+      <DialogHost />
+      {notice && (
+        <div className="pointer-events-none fixed bottom-24 left-1/2 z-[55] -translate-x-1/2 rounded-lg bg-slate-900 px-4 py-2 text-xs text-white shadow-lg dark:bg-slate-700">
+          {notice}
+        </div>
+      )}
     </div>
   )
 }

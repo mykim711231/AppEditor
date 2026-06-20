@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import Modal from './Modal'
-import { useStore } from '../store'
+import { useStore, uiConfirm } from '../store'
 import { loadHistory, deleteHistory, clearHistory } from '../lib/db'
 
 export default function History() {
@@ -18,7 +18,7 @@ export default function History() {
     refresh()
   }
   const onClear = async () => {
-    if (confirm('전체 히스토리를 삭제할까요?')) {
+    if (await uiConfirm({ title: '전체 삭제', message: '전체 히스토리를 삭제할까요?', danger: true })) {
       await clearHistory()
       refresh()
     }
