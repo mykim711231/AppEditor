@@ -40,6 +40,9 @@ export default function OracleModal() {
         <p className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400">
           <Database size={14} /> 항목을 펼쳐 코드를 보고, 복사하거나 에디터에 삽입하세요.
         </p>
+        <p className="rounded-md bg-amber-50 px-2 py-1 text-[11px] text-amber-700 dark:bg-amber-900/20 dark:text-amber-300">
+          기준 버전: <b>Oracle Database 23ai</b> — 버전에 따라 문법이 다를 수 있습니다.
+        </p>
 
         {/* 카테고리 탭 */}
         <div className="flex flex-wrap gap-1.5">

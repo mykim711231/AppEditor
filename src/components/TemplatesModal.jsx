@@ -42,6 +42,7 @@ export default function TemplatesModal() {
         </p>
 
         {/* 언어 선택 */}
+
         <div className="flex flex-wrap gap-1.5">
           {CODE_TEMPLATES.map((l) => (
             <button
@@ -61,6 +62,13 @@ export default function TemplatesModal() {
             </button>
           ))}
         </div>
+
+        {/* 기준 버전 표시 (버전별 문법 차이 주의) */}
+        {lang.version && (
+          <p className="rounded-md bg-amber-50 px-2 py-1 text-[11px] text-amber-700 dark:bg-amber-900/20 dark:text-amber-300">
+            기준 버전: <b>{lang.version}</b> — 버전에 따라 문법이 다를 수 있습니다.
+          </p>
+        )}
 
         {/* 분류 탭 */}
         <div className="flex flex-wrap gap-1.5">
