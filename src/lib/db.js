@@ -60,6 +60,11 @@ export async function deleteNodes(ids) {
   await tx.done
 }
 
+export async function clearFiles() {
+  const db = await getDB()
+  await db.clear('files')
+}
+
 // ---- AI 히스토리 ----
 export async function addHistory(entry) {
   const db = await getDB()

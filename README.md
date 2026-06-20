@@ -71,9 +71,17 @@ npm run icons      # SVG로부터 PWA 아이콘(PNG) 재생성
 - Pages 소스: 저장소 Settings → Pages → Source = **GitHub Actions** (최초 1회, gh CLI로 설정됨)
 - 빌드 경로(base)는 `/AppEditor/`. 사용자 도메인/루트 배포 시 `BASE=/ npm run build` 로 변경 가능.
 
-### Google Drive 연동(선택)
-[.env.example](./.env.example) 를 `.env`로 복사하고 `VITE_GOOGLE_CLIENT_ID`를
-발급받아 입력하면 활성화됩니다. 미설정 시 브라우저 내부(IndexedDB)·로컬 폴더 저장만 사용됩니다.
+### Google Drive 연동(선택) — 앱 안에서 설정
+앱 우상단 **⚙️ 설정 → ☁️ Google Drive 연동**에서 직접 구성합니다 (코드/.env 수정 불필요).
+
+1. [Google Cloud Console](https://console.cloud.google.com/)에서 **OAuth 클라이언트 ID**(웹 애플리케이션) 생성
+2. **승인된 JavaScript 원본**에 배포 주소(`https://mykim711231.github.io`, 로컬은 `http://localhost:5173`) 추가
+3. **Google Drive API** 사용 설정
+4. 발급된 클라이언트 ID를 설정 화면에 입력 → **Google 계정 연결** → **지금 백업 / 복원**
+
+- API 키 불필요 (브라우저 OAuth 토큰만 사용), 접근 범위 `drive.file`(앱이 만든 파일만)
+- 백업은 Drive에 `appeditor-backup.json` 1개로 저장(파일·스니펫·AI 목록 포함)
+- "편집 시 자동 백업" 켜면 저장 위치가 Google Drive일 때 변경분을 자동 업로드
 
 ---
 

@@ -27,7 +27,12 @@ const DEFAULT_SETTINGS = {
   font: 'Fira Code',
   fontSize: 14,
   storageMode: 'indexeddb', // 'indexeddb' | 'local' | 'gdrive'
+  googleClientId: '', // Google Drive OAuth 클라이언트 ID (설정에서 입력)
+  driveAutoBackup: false, // 편집 시 Drive 자동 백업
 }
+
+// Drive 자동 백업 디바운스 타이머 (모듈 스코프 — 리렌더 방지)
+let _driveBackupTimer = null
 
 const SAMPLE = `// 모바일 코드 에디터에 오신 것을 환영합니다 👋
 function greet(name) {
@@ -52,7 +57,7 @@ export const useStore = create((set, get) => ({
   activeTab: null, // 현재 활성 파일 id
   loaded: false,
 
-  settings: LS.get('settings', DEFAULT_SETTINGS),
+  settings: { ...DEFAULT_SETTINGS, ...LS.get('settings', {}) },
   ais: LS.get('ais', DEFAULT_AIS),
   snippets: LS.get('snippets', []),
 
@@ -97,6 +102,7 @@ export const useStore = create((set, get) => ({
     await db.putNode(node)
     set((s) => ({ nodes: [...s.nodes, node] }))
     get().openFile(node.id)
+    get().scheduleDriveBackup()
     return node
   },
 
@@ -112,6 +118,7 @@ export const useStore = create((set, get) => ({
     }
     await db.putNode(node)
     set((s) => ({ nodes: [...s.nodes, node] }))
+    get().scheduleDriveBackup()
     return node
   },
 
@@ -121,6 +128,7 @@ export const useStore = create((set, get) => ({
     const updated = { ...node, name }
     await db.putNode(updated)
     set((s) => ({ nodes: s.nodes.map((n) => (n.id === id ? updated : n)) }))
+    get().scheduleDriveBackup()
   },
 
   async deleteNode(id) {
@@ -140,6 +148,7 @@ export const useStore = create((set, get) => ({
         ? s.openTabs.filter((t) => !toDelete.includes(t))[0] || null
         : s.activeTab,
     }))
+    get().scheduleDriveBackup()
   },
 
   toggleFolder(id) {
@@ -198,6 +207,7 @@ export const useStore = create((set, get) => ({
     const updated = { ...node, content }
     set((s) => ({ nodes: s.nodes.map((n) => (n.id === id ? updated : n)) }))
     await db.putNode(updated)
+    get().scheduleDriveBackup()
   },
 
   // ---- 설정 ----
@@ -255,6 +265,59 @@ export const useStore = create((set, get) => ({
       LS.set('snippets', snippets)
       return { snippets }
     })
+  },
+
+  // ---- 백업 스냅샷 (Google Drive 연동용) ----
+  // 현재 파일/스니펫/AI 목록을 하나의 JSON 객체로 직렬화
+  getSnapshot() {
+    const s = get()
+    return {
+      app: 'appeditor',
+      version: 1,
+      exportedAt: Date.now(),
+      nodes: s.nodes,
+      snippets: s.snippets,
+      ais: s.ais,
+    }
+  },
+
+  // 스냅샷으로 현재 상태를 덮어쓰기 (Drive 복원)
+  async applySnapshot(data) {
+    if (!data || !Array.isArray(data.nodes)) {
+      throw new Error('백업 데이터 형식이 올바르지 않습니다.')
+    }
+    await db.clearFiles()
+    await db.putNodes(data.nodes)
+    const firstFile = data.nodes.find((n) => n.type === 'file')
+    set({
+      nodes: data.nodes,
+      openTabs: firstFile ? [firstFile.id] : [],
+      activeTab: firstFile ? firstFile.id : null,
+    })
+    if (Array.isArray(data.snippets)) {
+      LS.set('snippets', data.snippets)
+      set({ snippets: data.snippets })
+    }
+    if (Array.isArray(data.ais) && data.ais.length) {
+      LS.set('ais', data.ais)
+      set({ ais: data.ais })
+    }
+  },
+
+  // 자동 백업 예약 (storageMode=gdrive + 자동백업 ON + 클라이언트 ID 있을 때만)
+  scheduleDriveBackup() {
+    const { settings, getSnapshot } = get()
+    if (settings.storageMode !== 'gdrive') return
+    if (!settings.driveAutoBackup || !settings.googleClientId) return
+    if (_driveBackupTimer) clearTimeout(_driveBackupTimer)
+    _driveBackupTimer = setTimeout(async () => {
+      try {
+        const { uploadBackup } = await import('./lib/gdrive')
+        await uploadBackup(settings.googleClientId, JSON.stringify(getSnapshot()))
+      } catch {
+        /* 자동 백업 실패는 조용히 무시 (수동 백업으로 보완) */
+      }
+    }, 3000)
   },
 
   // ---- UI ----
