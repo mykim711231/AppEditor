@@ -36,6 +36,7 @@ const DEFAULT_SETTINGS = {
   storageMode: 'indexeddb', // 'indexeddb' | 'local' | 'gdrive'
   googleClientId: '', // Google Drive OAuth 클라이언트 ID (설정에서 입력)
   driveAutoBackup: false, // 편집 시 Drive 자동 백업
+  github: { token: '', repo: '', branch: 'main' }, // GitHub 연동 설정
 }
 
 // Drive 자동 백업 디바운스 타이머 (모듈 스코프 — 리렌더 방지)
@@ -80,6 +81,7 @@ export const useStore = create((set, get) => ({
   aiPanelOpen: false,
   activeModal: null, // 'settings' | 'snippets' | 'history' | 'search' | null
   menuOpen: false, // 좌상단 ≡ 메뉴
+  mdPreview: false, // 마크다운 미리보기 토글
   dialog: null, // 인앱 다이얼로그 (prompt/confirm/alert)
   notice: '', // 전역 토스트 알림
 
@@ -415,6 +417,7 @@ export const useStore = create((set, get) => ({
   setSidebar: (open) => set({ sidebarOpen: open, barsHidden: false }),
   toggleMenu: () => set((s) => ({ menuOpen: !s.menuOpen })),
   closeMenu: () => set({ menuOpen: false }),
+  toggleMdPreview: () => set((s) => ({ mdPreview: !s.mdPreview })),
   openModal: (m) => set({ activeModal: m, menuOpen: false }),
   closeModal: () => set({ activeModal: null }),
 }))

@@ -10,9 +10,12 @@ export default function TopBar() {
   const menuOpen = useStore((s) => s.menuOpen)
   const toggleMenu = useStore((s) => s.toggleMenu)
   const closeMenu = useStore((s) => s.closeMenu)
+  const mdPreview = useStore((s) => s.mdPreview)
+  const toggleMdPreview = useStore((s) => s.toggleMdPreview)
   const nodes = useStore((s) => s.nodes)
   const activeTab = useStore((s) => s.activeTab)
   const file = nodes.find((n) => n.id === activeTab)
+  const isMd = file && /\.(md|markdown)$/i.test(file.name)
   const menuRef = useRef(null)
 
   // 바깥 클릭 시 메뉴 닫기
@@ -39,6 +42,7 @@ export default function TopBar() {
           <div className="absolute left-0 top-12 z-50 w-44 overflow-hidden rounded-xl border border-slate-200 bg-white py-1 shadow-xl dark:border-slate-700 dark:bg-slate-900">
             {[
               ['search', '🔍 검색', 'search'],
+              ['github', '🐙 GitHub 연동', 'github'],
               ['snippets', '🧩 스니펫', 'snippets'],
               ['history', '🕘 AI 히스토리', 'history'],
               ['settings', '⚙️ 설정', 'settings'],
@@ -72,6 +76,18 @@ export default function TopBar() {
         </span>
         {file && <span className="text-[10px] text-slate-400">{languageLabel(file.name)}</span>}
       </div>
+
+      {/* 📖 마크다운 미리보기 (.md 파일일 때만) */}
+      {isMd && (
+        <button
+          onClick={toggleMdPreview}
+          className={`${btn} ${mdPreview ? 'bg-blue-100 dark:bg-blue-900/40' : ''}`}
+          title="마크다운 미리보기"
+          aria-label="마크다운 미리보기"
+        >
+          📖
+        </button>
+      )}
 
       {/* 👁 집중 모드 */}
       <button onClick={toggleBars} className={btn} title="집중 모드 (Esc)" aria-label="집중 모드">

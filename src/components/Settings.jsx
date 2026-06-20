@@ -3,7 +3,7 @@ import Modal from './Modal'
 import { useStore, uiConfirm } from '../store'
 import { connect, disconnect, isConnected, uploadBackup, downloadBackup } from '../lib/gdrive'
 
-const FONTS = ['Fira Code', 'JetBrains Mono', 'Source Code Pro', 'system-ui']
+const FONTS = ['Fira Code', 'JetBrains Mono', 'Source Code Pro', 'D2Coding', 'system-ui']
 
 export default function Settings() {
   const settings = useStore((s) => s.settings)

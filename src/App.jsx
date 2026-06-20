@@ -3,6 +3,7 @@ import { useStore } from './store'
 import TopBar from './components/TopBar'
 import Tabs from './components/Tabs'
 import Editor from './components/Editor'
+import MarkdownView from './components/MarkdownView'
 import FileExplorer from './components/FileExplorer'
 import AISelector from './components/AISelector'
 import QuestionBar from './components/QuestionBar'
@@ -10,6 +11,7 @@ import Settings from './components/Settings'
 import Snippets from './components/Snippets'
 import History from './components/History'
 import SearchModal from './components/SearchModal'
+import GitHubModal from './components/GitHubModal'
 import DialogHost from './components/DialogHost'
 
 export default function App() {
@@ -23,6 +25,9 @@ export default function App() {
   const toggleSidebar = useStore((s) => s.toggleSidebar)
   const toggleBars = useStore((s) => s.toggleBars)
   const setCodeSelection = useStore((s) => s.setCodeSelection)
+  const nodes = useStore((s) => s.nodes)
+  const activeTab = useStore((s) => s.activeTab)
+  const mdPreview = useStore((s) => s.mdPreview)
   const activeModal = useStore((s) => s.activeModal)
   const openModal = useStore((s) => s.openModal)
   const notice = useStore((s) => s.notice)
@@ -92,6 +97,9 @@ export default function App() {
 
   const showQuestionBar = !barsHidden || aiPanelOpen
   const showSidebar = sidebarOpen && !barsHidden
+  const activeFile = nodes.find((n) => n.id === activeTab)
+  const isMdPreview =
+    mdPreview && activeFile && /\.(md|markdown)$/i.test(activeFile.name)
 
   return (
     <div className="flex h-full flex-col bg-white dark:bg-slate-900">
@@ -122,7 +130,11 @@ export default function App() {
         >
           <Tabs />
           <div className="min-h-0 flex-1">
-            <Editor onSelectionChange={setCodeSelection} />
+            {isMdPreview ? (
+              <MarkdownView content={activeFile.content} />
+            ) : (
+              <Editor onSelectionChange={setCodeSelection} />
+            )}
           </div>
           {showQuestionBar && <QuestionBar />}
         </main>
@@ -145,6 +157,7 @@ export default function App() {
       {activeModal === 'snippets' && <Snippets />}
       {activeModal === 'history' && <History />}
       {activeModal === 'search' && <SearchModal />}
+      {activeModal === 'github' && <GitHubModal />}
 
       {/* 인앱 다이얼로그 + 전역 토스트 */}
       <DialogHost />
