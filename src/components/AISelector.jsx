@@ -1,8 +1,58 @@
 import { useState } from 'react'
+import {
+  DndContext,
+  closestCenter,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from '@dnd-kit/core'
+import {
+  SortableContext,
+  useSortable,
+  verticalListSortingStrategy,
+  arrayMove,
+} from '@dnd-kit/sortable'
+import { CSS } from '@dnd-kit/utilities'
 import { useStore } from '../store'
 
-// 사이드바 AI 선택 영역: 콤보박스(드롭다운)로 AI 선택 후 전송.
-// 질문/범위는 하단 QuestionBar 에서 입력하고 store 로 공유된다.
+// 드래그로 순서 변경되는 AI 행
+function SortableAIRow({ ai, selected, onSelect }) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+    id: ai.id,
+  })
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  }
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className={`flex items-center gap-1 rounded px-1 py-1 text-sm ${
+        selected
+          ? 'bg-blue-100 text-blue-900 dark:bg-blue-900/40 dark:text-blue-100'
+          : 'text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800'
+      }`}
+    >
+      <span
+        {...attributes}
+        {...listeners}
+        className="cursor-grab touch-none px-0.5 text-slate-300 dark:text-slate-600"
+        aria-label="드래그하여 순서 변경"
+      >
+        ⠿
+      </span>
+      <button onClick={() => onSelect(ai.id)} className="flex min-w-0 flex-1 items-center gap-1 text-left">
+        <span>{ai.icon}</span>
+        <span className="min-w-0 flex-1 truncate">{ai.name}</span>
+        {selected && <span className="text-xs text-blue-500">●</span>}
+      </button>
+    </div>
+  )
+}
+
+// 사이드바 AI 선택 영역: 콤보박스 선택 + 드래그 순서 변경 + 추가/삭제
 export default function AISelector() {
   const ais = useStore((s) => s.ais)
   const selectedAiId = useStore((s) => s.selectedAiId)
@@ -10,12 +60,15 @@ export default function AISelector() {
   const sendQuestion = useStore((s) => s.sendQuestion)
   const addAI = useStore((s) => s.addAI)
   const removeAI = useStore((s) => s.removeAI)
+  const reorderAIs = useStore((s) => s.reorderAIs)
 
   const [busy, setBusy] = useState(false)
   const [toast, setToast] = useState('')
 
   const currentId = selectedAiId && ais.some((a) => a.id === selectedAiId) ? selectedAiId : ais[0]?.id
   const current = ais.find((a) => a.id === currentId)
+
+  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 6 } }))
 
   const flash = (t) => {
     setToast(t)
@@ -49,6 +102,13 @@ export default function AISelector() {
   const onRemove = () => {
     if (!current) return
     if (confirm(`"${current.name}" 를 목록에서 삭제할까요?`)) removeAI(current.id)
+  }
+
+  const onDragEnd = (e) => {
+    const { active, over } = e
+    if (!over || active.id === over.id) return
+    const ids = ais.map((a) => a.id)
+    reorderAIs(arrayMove(ids, ids.indexOf(active.id), ids.indexOf(over.id)))
   }
 
   return (
@@ -97,6 +157,27 @@ export default function AISelector() {
       >
         {busy ? '여는 중…' : current ? `${current.icon} ${current.name} 로 보내기` : '보내기'}
       </button>
+
+      {/* 드래그로 순서 변경 (펼침) */}
+      {ais.length > 1 && (
+        <details className="mt-2">
+          <summary className="cursor-pointer text-xs text-slate-400">AI 순서 변경 (드래그)</summary>
+          <div className="mt-1">
+            <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
+              <SortableContext items={ais.map((a) => a.id)} strategy={verticalListSortingStrategy}>
+                {ais.map((ai) => (
+                  <SortableAIRow
+                    key={ai.id}
+                    ai={ai}
+                    selected={ai.id === currentId}
+                    onSelect={setSelectedAiId}
+                  />
+                ))}
+              </SortableContext>
+            </DndContext>
+          </div>
+        </details>
+      )}
 
       {toast && (
         <div className="mt-2 rounded-lg bg-slate-900 px-3 py-1.5 text-xs text-white dark:bg-slate-700">
