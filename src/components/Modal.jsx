@@ -1,3 +1,5 @@
+import { X } from 'lucide-react'
+
 export default function Modal({ title, onClose, children }) {
   return (
     <div
@@ -15,7 +17,7 @@ export default function Modal({ title, onClose, children }) {
             className="flex h-11 w-11 items-center justify-center rounded-lg text-slate-400 hover:bg-slate-100 active:bg-slate-200 dark:hover:bg-slate-800 dark:active:bg-slate-700"
             aria-label="닫기"
           >
-            ✕
+            <X size={18} />
           </button>
         </div>
         {children}

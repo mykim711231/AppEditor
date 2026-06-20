@@ -11,7 +11,9 @@ import Settings from './components/Settings'
 import History from './components/History'
 import SearchModal from './components/SearchModal'
 import GitHubModal from './components/GitHubModal'
+import OracleModal from './components/OracleModal'
 import DialogHost from './components/DialogHost'
+import { MessageSquare, Eye, CheckCircle2, XCircle, AlertTriangle, Info } from 'lucide-react'
 
 export default function App() {
   const init = useStore((s) => s.init)
@@ -105,7 +107,7 @@ export default function App() {
     mdPreview && activeFile && /\.(md|markdown)$/i.test(activeFile.name)
 
   return (
-    <div className="flex h-full flex-col bg-white dark:bg-slate-900">
+    <div className="fixed inset-0 flex flex-col overflow-hidden bg-white dark:bg-slate-900">
       <TopBar />
 
       <div className="relative flex min-h-0 flex-1">
@@ -147,21 +149,21 @@ export default function App() {
       {barsHidden && (
         <button
           onClick={toggleBars}
-          className="safe-top fixed right-3 top-3 z-40 flex h-10 w-10 items-center justify-center rounded-full bg-slate-900/80 text-base text-white shadow-lg active:scale-95 dark:bg-slate-700/90"
+          className="safe-top fixed right-3 top-3 z-40 flex h-10 w-10 items-center justify-center rounded-full bg-slate-900/80 text-white shadow-lg active:scale-95 dark:bg-slate-700/90"
           title="집중 모드 해제"
           aria-label="집중 모드 해제"
         >
-          👁
+          <Eye size={18} />
         </button>
       )}
       {barsHidden && !aiPanelOpen && (
         <button
           onClick={() => setAiPanel(true)}
-          className="fixed bottom-5 right-5 z-40 flex h-12 w-12 items-center justify-center rounded-full bg-blue-600 text-xl text-white shadow-lg active:scale-95"
+          className="fixed bottom-5 right-5 z-40 flex h-12 w-12 items-center justify-center rounded-full bg-blue-600 text-white shadow-lg active:scale-95"
           title="AI에게 질문 (질의 바 열기)"
           aria-label="질의 바 열기"
         >
-          💬
+          <MessageSquare size={22} />
         </button>
       )}
 
@@ -170,12 +172,23 @@ export default function App() {
       {activeModal === 'history' && <History />}
       {activeModal === 'search' && <SearchModal />}
       {activeModal === 'github' && <GitHubModal />}
+      {activeModal === 'oracle' && <OracleModal />}
 
       {/* 인앱 다이얼로그 + 전역 토스트 */}
       <DialogHost />
       {notice && (
-        <div className="pointer-events-none fixed bottom-24 left-1/2 z-[55] -translate-x-1/2 rounded-lg bg-slate-900 px-4 py-2 text-xs text-white shadow-lg dark:bg-slate-700">
-          {notice}
+        <div
+          className={`pointer-events-none fixed bottom-24 left-1/2 z-[55] flex max-w-[90vw] -translate-x-1/2 items-center gap-2 rounded-lg px-4 py-2.5 text-xs text-white shadow-lg ${
+            { success: 'bg-green-600', error: 'bg-red-600', warn: 'bg-amber-500', info: 'bg-slate-900 dark:bg-slate-700' }[
+              notice.type
+            ] || 'bg-slate-900 dark:bg-slate-700'
+          }`}
+        >
+          {notice.type === 'success' && <CheckCircle2 size={16} className="shrink-0" />}
+          {notice.type === 'error' && <XCircle size={16} className="shrink-0" />}
+          {notice.type === 'warn' && <AlertTriangle size={16} className="shrink-0" />}
+          {(!notice.type || notice.type === 'info') && <Info size={16} className="shrink-0" />}
+          <span>{notice.text}</span>
         </div>
       )}
     </div>

@@ -20,7 +20,7 @@ const LS = {
     } catch {
       // 저장 용량 초과 등 — 조용히 삼키지 않고 사용자에게 알림
       try {
-        useStore.getState().notify('저장 공간 부족 — 일부 설정이 저장되지 않았습니다.')
+        useStore.getState().notify('저장 공간 부족 — 일부 설정이 저장되지 않았습니다.', 'error')
       } catch {
         /* 무시 */
       }
@@ -81,7 +81,7 @@ export const useStore = create((set, get) => ({
   menuOpen: false, // 좌상단 ≡ 메뉴
   mdPreview: false, // 마크다운 미리보기 토글
   dialog: null, // 인앱 다이얼로그 (prompt/confirm/alert)
-  notice: '', // 전역 토스트 알림
+  notice: null, // 전역 토스트 알림 { text, type }
 
   // ---- 초기화 ----
   async init() {
@@ -89,7 +89,7 @@ export const useStore = create((set, get) => ({
     // Google Drive 리다이렉트 복귀 토큰 처리
     try {
       const { consumeRedirect } = await import('./lib/gdrive')
-      if (consumeRedirect()) set({ notice: 'Google Drive 연결됨' })
+      if (consumeRedirect()) set({ notice: { text: 'Google Drive 연결됨', type: 'success' } })
     } catch {
       /* 무시 */
     }
@@ -387,12 +387,12 @@ export const useStore = create((set, get) => ({
     if (d) d.resolve(value)
   },
 
-  // 전역 토스트
-  notify(msg) {
-    set({ notice: msg })
+  // 전역 토스트 (type: 'info' | 'success' | 'error' | 'warn')
+  notify(text, type = 'info') {
+    set({ notice: { text, type } })
   },
   clearNotice() {
-    set({ notice: '' })
+    set({ notice: null })
   },
 
   // ---- UI ----

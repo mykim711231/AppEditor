@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Send, Loader2, ChevronDown } from 'lucide-react'
 import { useStore } from '../store'
 import TextInput from './ui/TextInput'
 import AiIcon from './ui/AiIcon'
@@ -29,13 +30,13 @@ export default function QuestionBar() {
     try {
       const res = await sendQuestion(current)
       if (!res.opened && res.copied) {
-        notify(`팝업 차단됨 — 코드는 복사됨. ${current.name} 직접 열어 붙여넣기`)
+        notify(`팝업 차단됨 — 코드는 복사됨. ${current.name} 직접 열어 붙여넣기`, 'warn')
       } else if (!res.opened) {
-        notify(`${current.name} 열기 차단됨 — 팝업 허용 후 다시`)
+        notify(`${current.name} 열기 차단됨 — 팝업 허용 후 다시`, 'error')
       } else if (res.copied) {
-        notify(`${current.name} 열림 — 채팅창에 길게 눌러 붙여넣기 📋`)
+        notify(`${current.name} 열림 — 채팅창에 길게 눌러 붙여넣기`, 'success')
       } else {
-        notify(`${current.name} 열림 (복사 실패: 수동 복사 필요)`)
+        notify(`${current.name} 열림 (복사 실패: 수동 복사 필요)`, 'warn')
       }
     } finally {
       setBusy(false)
@@ -70,7 +71,13 @@ export default function QuestionBar() {
           className="flex h-11 shrink-0 items-center gap-1.5 rounded-lg bg-blue-600 px-3 text-sm font-medium text-white active:scale-95 disabled:opacity-50"
           title={current ? `${current.name} 로 보내기` : 'AI를 먼저 선택하세요'}
         >
-          {busy ? <span className="animate-spin">↻</span> : current && <AiIcon ai={current} size={18} />}
+          {busy ? (
+            <Loader2 size={16} className="animate-spin" />
+          ) : current ? (
+            <AiIcon ai={current} size={18} />
+          ) : (
+            <Send size={16} />
+          )}
           <span>{busy ? '처리 중…' : '보내기'}</span>
         </button>
       </div>
@@ -86,10 +93,12 @@ export default function QuestionBar() {
             <>
               <AiIcon ai={current} size={14} />
               <span>{current.name}</span>
-              <span className="text-slate-400">▾</span>
+              <ChevronDown size={14} className="text-slate-400" />
             </>
           ) : (
-            <span className="text-amber-500">AI 선택 ▾</span>
+            <span className="flex items-center gap-0.5 text-amber-500">
+              AI 선택 <ChevronDown size={14} />
+            </span>
           )}
         </button>
         <span className="text-slate-300 dark:text-slate-600">|</span>

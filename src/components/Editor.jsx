@@ -7,6 +7,7 @@ import { lintGutter } from '@codemirror/lint'
 import { useStore } from '../store'
 import { loadLanguageExtension } from '../lib/languages'
 import { codeLinter } from '../lib/lint'
+import { setEditorView } from '../lib/editorRef'
 import EditorToolbar from './EditorToolbar'
 
 // 찾기·바꾸기 패널 한국어화
@@ -161,6 +162,7 @@ export default function Editor({ onSelectionChange }) {
           onChange={(value) => save(file.id, value)}
           onCreateEditor={(view) => {
             viewRef.current = view
+            setEditorView(view)
           }}
           basicSetup={{
             lineNumbers: true,

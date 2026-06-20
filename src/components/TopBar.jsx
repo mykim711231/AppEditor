@@ -1,8 +1,9 @@
 import { useEffect, useRef } from 'react'
+import { Menu, PanelLeft, Eye, BookOpen, Search, Database, GitBranch, History, Settings } from 'lucide-react'
 import { useStore } from '../store'
 import { languageLabel } from '../lib/languages'
 
-// 좌상단 툴바 (Claude Desktop 스타일): ≡ 메뉴 / ▭ 사이드 토글 / 🔍 검색
+// 좌상단 툴바: 메뉴 / 사이드 토글 / 파일명 / (MD 미리보기) / 집중 모드
 export default function TopBar() {
   const toggleSidebar = useStore((s) => s.toggleSidebar)
   const toggleBars = useStore((s) => s.toggleBars)
@@ -18,7 +19,6 @@ export default function TopBar() {
   const isMd = file && /\.(md|markdown)$/i.test(file.name)
   const menuRef = useRef(null)
 
-  // 바깥 클릭 시 메뉴 닫기
   useEffect(() => {
     if (!menuOpen) return
     const onDown = (e) => {
@@ -29,28 +29,32 @@ export default function TopBar() {
   }, [menuOpen, closeMenu])
 
   const btn =
-    'flex h-11 w-11 items-center justify-center rounded-lg text-lg hover:bg-slate-200 active:bg-slate-300 dark:hover:bg-slate-700 dark:active:bg-slate-600'
+    'flex h-11 w-11 items-center justify-center rounded-lg text-slate-700 hover:bg-slate-200 active:bg-slate-300 dark:text-slate-200 dark:hover:bg-slate-700 dark:active:bg-slate-600'
+
+  const menuItems = [
+    ['search', '검색', Search],
+    ['oracle', 'Oracle 템플릿', Database],
+    ['github', 'GitHub 연동', GitBranch],
+    ['history', 'AI 히스토리', History],
+    ['settings', '설정', Settings],
+  ]
 
   return (
     <div className="safe-top relative flex items-center gap-0.5 border-b border-slate-200 bg-slate-100 px-1.5 py-1 dark:border-slate-700 dark:bg-slate-800">
-      {/* ≡ 메뉴 */}
+      {/* 메뉴 */}
       <div ref={menuRef} className="relative">
         <button onClick={toggleMenu} className={btn} title="메뉴" aria-label="메뉴">
-          ≡
+          <Menu size={20} />
         </button>
         {menuOpen && (
-          <div className="absolute left-0 top-12 z-50 w-44 overflow-hidden rounded-xl border border-slate-200 bg-white py-1 shadow-xl dark:border-slate-700 dark:bg-slate-900">
-            {[
-              ['search', '🔍 검색', 'search'],
-              ['github', '🐙 GitHub 연동', 'github'],
-              ['history', '🕘 AI 히스토리', 'history'],
-              ['settings', '⚙️ 설정', 'settings'],
-            ].map(([key, label, modal]) => (
+          <div className="absolute left-0 top-12 z-50 w-48 overflow-hidden rounded-xl border border-slate-200 bg-white py-1 shadow-xl dark:border-slate-700 dark:bg-slate-900">
+            {menuItems.map(([key, label, Icon]) => (
               <button
                 key={key}
-                onClick={() => openModal(modal)}
-                className="flex w-full items-center px-4 py-2.5 text-left text-sm text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800"
+                onClick={() => openModal(key)}
+                className="flex w-full items-center gap-2.5 px-4 py-2.5 text-left text-sm text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800"
               >
+                <Icon size={16} className="shrink-0 text-slate-500 dark:text-slate-400" />
                 {label}
               </button>
             ))}
@@ -58,9 +62,9 @@ export default function TopBar() {
         )}
       </div>
 
-      {/* ▭ 사이드 토글 */}
+      {/* 사이드 토글 */}
       <button onClick={toggleSidebar} className={btn} title="사이드바 토글 (Cmd+B)" aria-label="사이드바">
-        ▭
+        <PanelLeft size={20} />
       </button>
 
       {/* 파일명 */}
@@ -71,21 +75,21 @@ export default function TopBar() {
         {file && <span className="text-[11px] text-slate-500 dark:text-slate-400">{languageLabel(file.name)}</span>}
       </div>
 
-      {/* 📖 마크다운 미리보기 (.md 파일일 때만) */}
+      {/* MD 미리보기 (.md 파일일 때만) */}
       {isMd && (
         <button
           onClick={toggleMdPreview}
-          className={`${btn} ${mdPreview ? 'bg-blue-100 dark:bg-blue-900/40' : ''}`}
+          className={`${btn} ${mdPreview ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-200' : ''}`}
           title="마크다운 미리보기"
           aria-label="마크다운 미리보기"
         >
-          📖
+          <BookOpen size={20} />
         </button>
       )}
 
-      {/* 👁 집중 모드 */}
+      {/* 집중 모드 */}
       <button onClick={toggleBars} className={btn} title="집중 모드 (Esc)" aria-label="집중 모드">
-        👁
+        <Eye size={20} />
       </button>
     </div>
   )

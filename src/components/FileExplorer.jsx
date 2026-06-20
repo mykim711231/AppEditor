@@ -14,6 +14,17 @@ import {
   arrayMove,
 } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
+import {
+  PanelLeftClose,
+  FilePlus,
+  FolderPlus,
+  Folder,
+  FolderOpen,
+  FileText,
+  Pencil,
+  Trash2,
+  GripVertical,
+} from 'lucide-react'
 import { useStore, uiPrompt, uiConfirm } from '../store'
 import TextInput from './ui/TextInput'
 
@@ -129,10 +140,14 @@ function NodeRow({ node, depth }) {
           onClick={(e) => e.stopPropagation()}
           aria-label="드래그하여 순서 변경"
         >
-          ⠿
+          <GripVertical size={15} />
         </button>
-        <span className="w-4 text-center">
-          {isFolder ? (node.expanded ? '📂' : '📁') : '📄'}
+        <span className="flex w-5 shrink-0 justify-center text-slate-500 dark:text-slate-400">
+          {isFolder ? (
+            node.expanded ? <FolderOpen size={16} /> : <Folder size={16} />
+          ) : (
+            <FileText size={16} />
+          )}
         </span>
         {editing ? (
           <TextInput
@@ -162,17 +177,17 @@ function NodeRow({ node, depth }) {
                 title="파일 추가"
                 aria-label="파일 추가"
                 onClick={(e) => onAddChild(e, 'file')}
-                className="flex h-8 w-8 items-center justify-center rounded-lg text-sm hover:bg-slate-200 active:bg-slate-300 dark:hover:bg-slate-700"
+                className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-500 hover:bg-slate-200 active:bg-slate-300 dark:text-slate-400 dark:hover:bg-slate-700"
               >
-                ＋📄
+                <FilePlus size={15} />
               </button>
               <button
                 title="폴더 추가"
                 aria-label="폴더 추가"
                 onClick={(e) => onAddChild(e, 'folder')}
-                className="flex h-8 w-8 items-center justify-center rounded-lg text-sm hover:bg-slate-200 active:bg-slate-300 dark:hover:bg-slate-700"
+                className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-500 hover:bg-slate-200 active:bg-slate-300 dark:text-slate-400 dark:hover:bg-slate-700"
               >
-                ＋📁
+                <FolderPlus size={15} />
               </button>
             </>
           )}
@@ -183,17 +198,17 @@ function NodeRow({ node, depth }) {
               e.stopPropagation()
               setEditing(true)
             }}
-            className="flex h-8 w-8 items-center justify-center rounded-lg text-sm hover:bg-slate-200 active:bg-slate-300 dark:hover:bg-slate-700"
+            className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-500 hover:bg-slate-200 active:bg-slate-300 dark:text-slate-400 dark:hover:bg-slate-700"
           >
-            ✏️
+            <Pencil size={15} />
           </button>
           <button
             title="삭제"
             aria-label="삭제"
             onClick={onDelete}
-            className="flex h-8 w-8 items-center justify-center rounded-lg text-sm hover:bg-red-100 active:bg-red-200 dark:hover:bg-red-900/40"
+            className="flex h-8 w-8 items-center justify-center rounded-lg text-red-500 hover:bg-red-100 active:bg-red-200 dark:hover:bg-red-900/40"
           >
-            🗑️
+            <Trash2 size={15} />
           </button>
         </div>
       </div>
@@ -225,10 +240,10 @@ export default function FileExplorer() {
         <button
           onClick={toggleSidebar}
           title="사이드바 접기 (Cmd+B)"
-          className="rounded px-1.5 py-0.5 text-base leading-none text-slate-500 hover:bg-slate-200 dark:text-slate-400 dark:hover:bg-slate-700"
+          className="flex h-9 w-9 items-center justify-center rounded-lg text-slate-500 hover:bg-slate-200 active:bg-slate-300 dark:text-slate-400 dark:hover:bg-slate-700"
           aria-label="사이드바 접기"
         >
-          «
+          <PanelLeftClose size={18} />
         </button>
         <span className="flex-1 text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
           탐색기
@@ -237,16 +252,18 @@ export default function FileExplorer() {
           <button
             onClick={onNewFile}
             title="새 파일"
-            className="rounded px-1.5 py-0.5 text-sm hover:bg-slate-200 dark:hover:bg-slate-700"
+            aria-label="새 파일"
+            className="flex h-9 w-9 items-center justify-center rounded-lg text-slate-600 hover:bg-slate-200 active:bg-slate-300 dark:text-slate-300 dark:hover:bg-slate-700"
           >
-            📄＋
+            <FilePlus size={18} />
           </button>
           <button
             onClick={onNewFolder}
             title="새 폴더"
-            className="rounded px-1.5 py-0.5 text-sm hover:bg-slate-200 dark:hover:bg-slate-700"
+            aria-label="새 폴더"
+            className="flex h-9 w-9 items-center justify-center rounded-lg text-slate-600 hover:bg-slate-200 active:bg-slate-300 dark:text-slate-300 dark:hover:bg-slate-700"
           >
-            📁＋
+            <FolderPlus size={18} />
           </button>
         </div>
       </div>

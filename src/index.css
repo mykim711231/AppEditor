@@ -30,7 +30,10 @@ body,
 
 body {
   overscroll-behavior: none;
+  overscroll-behavior-x: none;
   -webkit-tap-highlight-color: transparent;
+  position: fixed; /* 페이지 자체의 좌우/상하 패닝 방지 (앱은 내부에서 스크롤) */
+  inset: 0;
   font-family: system-ui, -apple-system, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
 }
 

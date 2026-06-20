@@ -14,6 +14,7 @@ import {
   arrayMove,
 } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
+import { Plus, RotateCcw, Trash2, ChevronDown, GripVertical } from 'lucide-react'
 import { useStore, uiConfirm } from '../store'
 import TextInput from './ui/TextInput'
 import AiIcon from './ui/AiIcon'
@@ -41,10 +42,10 @@ function SortableAIRow({ ai, selected, onSelect }) {
       <span
         {...attributes}
         {...listeners}
-        className="cursor-grab touch-none px-0.5 text-slate-300 dark:text-slate-600"
+        className="flex cursor-grab touch-none items-center text-slate-400 dark:text-slate-500"
         aria-label="드래그하여 순서 변경"
       >
-        ⠿
+        <GripVertical size={15} />
       </span>
       <button onClick={() => onSelect(ai.id)} className="flex min-w-0 flex-1 items-center gap-1.5 text-left">
         <AiIcon ai={ai} />
@@ -133,26 +134,26 @@ export default function AISelector() {
             onClick={() => setShowAdd((v) => !v)}
             title="AI 추가"
             aria-label="AI 추가"
-            className="flex h-9 w-9 items-center justify-center rounded-lg text-sm hover:bg-slate-200 active:bg-slate-300 dark:hover:bg-slate-700"
+            className="flex h-9 w-9 items-center justify-center rounded-lg text-slate-600 hover:bg-slate-200 active:bg-slate-300 dark:text-slate-300 dark:hover:bg-slate-700"
           >
-            ＋
+            <Plus size={18} />
           </button>
           <button
             onClick={onRestoreDefaults}
             title="기본 AI 복원 (빠진 기본 AI 되살리기)"
             aria-label="기본 AI 복원"
-            className="flex h-9 w-9 items-center justify-center rounded-lg text-sm hover:bg-slate-200 active:bg-slate-300 dark:hover:bg-slate-700"
+            className="flex h-9 w-9 items-center justify-center rounded-lg text-slate-600 hover:bg-slate-200 active:bg-slate-300 dark:text-slate-300 dark:hover:bg-slate-700"
           >
-            ♻️
+            <RotateCcw size={16} />
           </button>
           <button
             onClick={onRemove}
             title="선택한 AI 삭제"
             aria-label="선택한 AI 삭제"
             disabled={!current}
-            className="flex h-9 w-9 items-center justify-center rounded-lg text-sm hover:bg-red-100 active:bg-red-200 disabled:opacity-40 dark:hover:bg-red-900/40"
+            className="flex h-9 w-9 items-center justify-center rounded-lg text-red-500 hover:bg-red-100 active:bg-red-200 disabled:opacity-40 dark:hover:bg-red-900/40"
           >
-            🗑️
+            <Trash2 size={16} />
           </button>
         </div>
       </div>
@@ -171,7 +172,7 @@ export default function AISelector() {
           ) : (
             <span className="flex-1 text-slate-400">AI 없음 — ＋로 추가</span>
           )}
-          <span className="text-slate-400">▾</span>
+          <ChevronDown size={16} className="text-slate-400" />
         </button>
         {pickOpen && ais.length > 0 && (
           <div className="absolute bottom-full left-0 z-20 mb-1 max-h-60 w-full overflow-y-auto rounded-lg border border-slate-200 bg-white py-1 shadow-xl dark:border-slate-700 dark:bg-slate-900">
