@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import {
   DndContext,
   closestCenter,
@@ -16,6 +16,7 @@ import {
 import { CSS } from '@dnd-kit/utilities'
 import { useStore, uiConfirm } from '../store'
 import TextInput from './ui/TextInput'
+import AiIcon from './ui/AiIcon'
 
 // 드래그로 순서 변경되는 AI 행
 function SortableAIRow({ ai, selected, onSelect }) {
@@ -45,8 +46,8 @@ function SortableAIRow({ ai, selected, onSelect }) {
       >
         ⠿
       </span>
-      <button onClick={() => onSelect(ai.id)} className="flex min-w-0 flex-1 items-center gap-1 text-left">
-        <span>{ai.icon}</span>
+      <button onClick={() => onSelect(ai.id)} className="flex min-w-0 flex-1 items-center gap-1.5 text-left">
+        <AiIcon ai={ai} />
         <span className="min-w-0 flex-1 truncate">{ai.name}</span>
         {selected && <span className="text-xs text-blue-500">●</span>}
       </button>
@@ -69,6 +70,18 @@ export default function AISelector() {
   const [toast, setToast] = useState('')
   const [showAdd, setShowAdd] = useState(false)
   const [form, setForm] = useState({ name: '', url: 'https://', icon: '🤖' })
+  const [pickOpen, setPickOpen] = useState(false)
+  const pickRef = useRef(null)
+
+  // 드롭다운 바깥 클릭 시 닫기
+  useEffect(() => {
+    if (!pickOpen) return
+    const onDown = (e) => {
+      if (pickRef.current && !pickRef.current.contains(e.target)) setPickOpen(false)
+    }
+    document.addEventListener('pointerdown', onDown)
+    return () => document.removeEventListener('pointerdown', onDown)
+  }, [pickOpen])
 
   const currentId = selectedAiId && ais.some((a) => a.id === selectedAiId) ? selectedAiId : ais[0]?.id
   const current = ais.find((a) => a.id === currentId)
@@ -158,19 +171,44 @@ export default function AISelector() {
         </div>
       </div>
 
-      {/* 콤보박스로 AI 선택 */}
-      <select
-        value={currentId || ''}
-        onChange={(e) => setSelectedAiId(e.target.value)}
-        className="mb-2 w-full rounded-lg border border-slate-300 bg-white px-2 py-1.5 text-sm text-slate-900 dark:border-slate-600 dark:bg-slate-800 dark:text-white"
-      >
-        {ais.length === 0 && <option value="">AI 없음 — ＋로 추가</option>}
-        {ais.map((ai) => (
-          <option key={ai.id} value={ai.id}>
-            {ai.icon} {ai.name}
-          </option>
-        ))}
-      </select>
+      {/* AI 선택 (커스텀 드롭다운 — 실제 로고 표시) */}
+      <div ref={pickRef} className="relative mb-2">
+        <button
+          onClick={() => setPickOpen((v) => !v)}
+          className="flex w-full items-center gap-2 rounded-lg border border-slate-300 bg-white px-2 py-2 text-left text-sm text-slate-900 dark:border-slate-600 dark:bg-slate-800 dark:text-white"
+        >
+          {current ? (
+            <>
+              <AiIcon ai={current} />
+              <span className="min-w-0 flex-1 truncate">{current.name}</span>
+            </>
+          ) : (
+            <span className="flex-1 text-slate-400">AI 없음 — ＋로 추가</span>
+          )}
+          <span className="text-slate-400">▾</span>
+        </button>
+        {pickOpen && ais.length > 0 && (
+          <div className="absolute bottom-full left-0 z-20 mb-1 max-h-60 w-full overflow-y-auto rounded-lg border border-slate-200 bg-white py-1 shadow-xl dark:border-slate-700 dark:bg-slate-900">
+            {ais.map((ai) => (
+              <button
+                key={ai.id}
+                onClick={() => {
+                  setSelectedAiId(ai.id)
+                  setPickOpen(false)
+                }}
+                className={`flex w-full items-center gap-2 px-3 py-2 text-left text-sm ${
+                  ai.id === currentId
+                    ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/40 dark:text-blue-100'
+                    : 'text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800'
+                }`}
+              >
+                <AiIcon ai={ai} />
+                <span className="min-w-0 flex-1 truncate">{ai.name}</span>
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
 
       {/* AI 추가 폼 (이름 + URL + 아이콘 한 번에) */}
       {showAdd && (
@@ -218,9 +256,18 @@ export default function AISelector() {
       <button
         onClick={onSend}
         disabled={!current || busy}
-        className="w-full rounded-lg bg-blue-600 py-2 text-sm font-medium text-white active:scale-[0.99] disabled:opacity-50"
+        className="flex w-full items-center justify-center gap-2 rounded-lg bg-blue-600 py-2 text-sm font-medium text-white active:scale-[0.99] disabled:opacity-50"
       >
-        {busy ? '여는 중…' : current ? `${current.icon} ${current.name} 로 보내기` : '보내기'}
+        {busy ? (
+          '여는 중…'
+        ) : current ? (
+          <>
+            <AiIcon ai={current} size={16} />
+            <span>{current.name} 로 보내기</span>
+          </>
+        ) : (
+          '보내기'
+        )}
       </button>
 
       {/* 드래그로 순서 변경 (펼침) */}

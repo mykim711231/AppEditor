@@ -62,6 +62,16 @@ export default defineConfig({
               cacheableResponse: { statuses: [0, 200] },
             },
           },
+          {
+            // AI 사이트 파비콘(로고) — 구글 파비콘 서비스, 오프라인 캐시
+            urlPattern: ({ url }) => url.href.startsWith('https://www.google.com/s2/favicons'),
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'ai-favicons',
+              expiration: { maxEntries: 60, maxAgeSeconds: 60 * 60 * 24 * 90 },
+              cacheableResponse: { statuses: [0, 200] },
+            },
+          },
         ],
       },
     }),
