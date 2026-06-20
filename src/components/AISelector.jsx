@@ -60,13 +60,11 @@ export default function AISelector() {
   const ais = useStore((s) => s.ais)
   const selectedAiId = useStore((s) => s.selectedAiId)
   const setSelectedAiId = useStore((s) => s.setSelectedAiId)
-  const sendQuestion = useStore((s) => s.sendQuestion)
   const addAI = useStore((s) => s.addAI)
   const removeAI = useStore((s) => s.removeAI)
   const reorderAIs = useStore((s) => s.reorderAIs)
   const restoreDefaultAIs = useStore((s) => s.restoreDefaultAIs)
 
-  const [busy, setBusy] = useState(false)
   const [toast, setToast] = useState('')
   const [showAdd, setShowAdd] = useState(false)
   const [form, setForm] = useState({ name: '', url: 'https://', icon: '🤖' })
@@ -94,21 +92,6 @@ export default function AISelector() {
   const flash = (t) => {
     setToast(t)
     setTimeout(() => setToast(''), 2500)
-  }
-
-  const onSend = async () => {
-    if (!current) return
-    setBusy(true)
-    try {
-      const res = await sendQuestion(current)
-      let msg
-      if (!res.opened) msg = `${current.name} 열기 차단됨 — 팝업 허용 후 다시 시도`
-      else if (res.copied) msg = `${current.name} 열림 · 코드+질문 복사됨 (붙여넣기)`
-      else msg = `${current.name} 열림 (복사 실패: 수동 복사 필요)`
-      flash(msg)
-    } finally {
-      setBusy(false)
-    }
   }
 
   const onSubmitAdd = () => {
@@ -143,7 +126,7 @@ export default function AISelector() {
     <div className="border-t border-slate-200 p-2 dark:border-slate-700">
       <div className="mb-1 flex items-center justify-between">
         <span className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
-          AI 질의
+          질의할 AI 선택
         </span>
         <div className="flex gap-1">
           <button
@@ -253,22 +236,7 @@ export default function AISelector() {
         </div>
       )}
 
-      <button
-        onClick={onSend}
-        disabled={!current || busy}
-        className="flex w-full items-center justify-center gap-2 rounded-lg bg-blue-600 py-2 text-sm font-medium text-white active:scale-[0.99] disabled:opacity-50"
-      >
-        {busy ? (
-          '여는 중…'
-        ) : current ? (
-          <>
-            <AiIcon ai={current} size={16} />
-            <span>{current.name} 로 보내기</span>
-          </>
-        ) : (
-          '보내기'
-        )}
-      </button>
+      <p className="mb-1 text-[10px] text-slate-400">선택 후 하단 질문창의 ‘보내기’로 전송</p>
 
       {/* 드래그로 순서 변경 (펼침) */}
       {ais.length > 1 && (
