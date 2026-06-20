@@ -2,8 +2,36 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import CodeMirror from '@uiw/react-codemirror'
 import { oneDark } from '@codemirror/theme-one-dark'
 import { EditorView } from '@codemirror/view'
+import { linter, lintGutter } from '@codemirror/lint'
+import { syntaxTree } from '@codemirror/language'
 import { useStore } from '../store'
 import { loadLanguageExtension } from '../lib/languages'
+
+// 문법 검증: 로드된 언어의 Lezer 파서가 표시한 오류 노드를 진단으로 변환
+const syntaxLinter = linter(
+  (view) => {
+    const diagnostics = []
+    const len = view.state.doc.length
+    let count = 0
+    syntaxTree(view.state)
+      .cursor()
+      .iterate((node) => {
+        if (count >= 100) return
+        if (node.type.isError && node.from < len) {
+          const to = node.to <= node.from ? Math.min(node.from + 1, len) : node.to
+          diagnostics.push({
+            from: node.from,
+            to,
+            severity: 'error',
+            message: '문법 오류 — 구문을 확인하세요',
+          })
+          count++
+        }
+      })
+    return diagnostics
+  },
+  { delay: 500 }
+)
 
 export default function Editor({ onSelectionChange }) {
   const nodes = useStore((s) => s.nodes)
@@ -74,6 +102,9 @@ export default function Editor({ onSelectionChange }) {
   const extensions = useMemo(() => {
     const exts = [
       EditorView.lineWrapping,
+      // 언어별 문법 검증 (로드된 언어 파서 기준) + 좌측 오류 표시
+      lintGutter(),
+      syntaxLinter,
       // iOS 자동수정/자동대문자/맞춤법 비활성 (코드 입력 방해 방지)
       EditorView.contentAttributes.of({
         autocorrect: 'off',

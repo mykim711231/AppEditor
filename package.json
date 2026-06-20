@@ -15,6 +15,7 @@
     "@codemirror/commands": "^6.6.2",
     "@codemirror/language": "^6.10.3",
     "@codemirror/language-data": "^6.5.1",
+    "@codemirror/lint": "^6.9.7",
     "@codemirror/search": "^6.5.6",
     "@codemirror/state": "^6.4.1",
     "@codemirror/theme-one-dark": "^6.1.2",
@@ -27,6 +28,7 @@
     "dompurify": "^3.4.11",
     "idb": "^8.0.0",
     "marked": "^18.0.5",
+    "mermaid": "^11.15.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "zustand": "^4.5.5"

@@ -39,6 +39,8 @@ export default defineConfig({
       },
       workbox: {
         globPatterns: ['**/*.{js,css,html,svg,png,ico,woff2}'],
+        // mermaid(및 무거운 차트 의존성)는 필요 시에만 로드 — 사전 캐시에서 제외
+        globIgnores: ['**/mermaid-*.js'],
         navigateFallback: base + 'index.html',
         runtimeCaching: [
           {
@@ -79,5 +81,15 @@ export default defineConfig({
   build: {
     target: 'es2018',
     chunkSizeWarningLimit: 1500,
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          // mermaid + 무거운 차트 의존성을 단일 lazy 청크로 분리
+          if (/[\\/]node_modules[\\/](mermaid|d3|d3-[^/\\]+|dagre|dagre-d3-es|cytoscape|cytoscape-[^/\\]+|khroma|elkjs|@mermaid-js)[\\/]/.test(id)) {
+            return 'mermaid'
+          }
+        },
+      },
+    },
   },
 })
