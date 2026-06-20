@@ -32,14 +32,15 @@ export default function EditorToolbar({ viewRef }) {
     <button
       onClick={onClick}
       title={title}
-      className="flex h-9 shrink-0 items-center gap-1 rounded-md border border-slate-200 bg-white px-2 text-xs text-slate-700 active:scale-95 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200"
+      className="flex h-11 shrink-0 items-center gap-1 rounded-md border border-slate-200 bg-white px-2.5 text-xs text-slate-700 active:scale-95 active:bg-slate-100 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:active:bg-slate-700"
     >
       {children}
     </button>
   )
 
   return (
-    <div className="flex items-center gap-1 overflow-x-auto border-b border-slate-200 bg-slate-50 px-1.5 py-1 dark:border-slate-700 dark:bg-slate-800/60">
+    <div className="relative border-b border-slate-200 dark:border-slate-700">
+      <div className="flex items-center gap-1 overflow-x-auto bg-slate-50 px-1.5 py-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden dark:bg-slate-800/60">
       <Btn onClick={run(undo)} title="실행취소 (Ctrl+Z)">
         ↩︎
       </Btn>
@@ -69,6 +70,9 @@ export default function EditorToolbar({ viewRef }) {
       <Btn onClick={run(openSearchPanel)} title="찾기·바꾸기 (Ctrl+F)">
         🔍 바꾸기
       </Btn>
+      </div>
+      {/* 오른쪽 스크롤 가능 표시 */}
+      <div className="pointer-events-none absolute inset-y-0 right-0 w-6 bg-gradient-to-l from-slate-50 dark:from-slate-800" />
     </div>
   )
 }

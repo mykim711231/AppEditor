@@ -67,6 +67,16 @@ body {
   font-family: var(--editor-font) !important;
 }
 
+/* 키보드 포커스 표시 (접근성) */
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
 /* 마크다운 미리보기 스타일 */
 .md-body {
   line-height: 1.7;
@@ -152,6 +162,17 @@ body {
   border: none;
   border-top: 1px solid rgba(148, 163, 184, 0.3);
   margin: 1.2em 0;
+}
+
+/* 마크다운 다크 테마 대비 보정 */
+.dark .md-body a {
+  color: #60a5fa;
+}
+.dark .md-body blockquote {
+  color: rgba(148, 163, 184, 1);
+}
+.dark .md-body code {
+  background: rgba(51, 65, 85, 0.8);
 }
 
 /* 스크롤바 슬림 */

@@ -3,8 +3,8 @@ import { useStore } from '../store'
 import TextInput from './ui/TextInput'
 import AiIcon from './ui/AiIcon'
 
-// 하단 질의 바: 질문 입력 + 범위(라디오) + 보내기.
-// AI 선택은 사이드바(AISelector)에서 미리 고르고, 여기서 그 AI로 전송한다.
+// 하단 질의 바: AI 칩 선택 + 질문 입력 + 보내기 + 범위.
+// AI 선택을 여기서 바로 할 수 있어 사이드바를 열 필요가 없다(사이드바는 AI 관리용).
 export default function QuestionBar() {
   const aiQuestion = useStore((s) => s.aiQuestion)
   const setAiQuestion = useStore((s) => s.setAiQuestion)
@@ -15,24 +15,28 @@ export default function QuestionBar() {
   const setAiPanel = useStore((s) => s.setAiPanel)
   const ais = useStore((s) => s.ais)
   const selectedAiId = useStore((s) => s.selectedAiId)
+  const setSelectedAiId = useStore((s) => s.setSelectedAiId)
   const sendQuestion = useStore((s) => s.sendQuestion)
   const notify = useStore((s) => s.notify)
 
   const [busy, setBusy] = useState(false)
-  const current = ais.find((a) => a.id === selectedAiId) || ais[0]
+  const currentId = selectedAiId && ais.some((a) => a.id === selectedAiId) ? selectedAiId : ais[0]?.id
+  const current = ais.find((a) => a.id === currentId)
 
   const onSend = async () => {
     if (!current) return
     setBusy(true)
     try {
       const res = await sendQuestion(current)
-      notify(
-        !res.opened
-          ? `${current.name} 열기 차단됨 — 팝업 허용 후 다시`
-          : res.copied
-            ? `${current.name} 열림 · 코드+질문 복사됨`
-            : `${current.name} 열림 (복사 실패: 수동 복사)`
-      )
+      if (!res.opened && res.copied) {
+        notify(`팝업 차단됨 — 코드는 복사됨. ${current.name} 직접 열어 붙여넣기`)
+      } else if (!res.opened) {
+        notify(`${current.name} 열기 차단됨 — 팝업 허용 후 다시`)
+      } else if (res.copied) {
+        notify(`${current.name} 열림 — 채팅창에 길게 눌러 붙여넣기 📋`)
+      } else {
+        notify(`${current.name} 열림 (복사 실패: 수동 복사 필요)`)
+      }
     } finally {
       setBusy(false)
     }
@@ -40,7 +44,7 @@ export default function QuestionBar() {
 
   return (
     <div className="border-t border-slate-200 bg-slate-50 dark:border-slate-700 dark:bg-slate-900 safe-bottom">
-      {/* 드래그 핸들: 스와이프 가능 표시 + 집중 모드에선 탭하면 닫힘 */}
+      {/* 드래그 핸들 */}
       <button
         onClick={() => barsHidden && setAiPanel(false)}
         className="flex w-full justify-center py-1.5"
@@ -49,6 +53,30 @@ export default function QuestionBar() {
       >
         <span className="h-1 w-10 rounded-full bg-slate-300 dark:bg-slate-600" />
       </button>
+
+      {/* AI 칩 선택 (가로 스크롤) */}
+      <div className="flex gap-1.5 overflow-x-auto px-2 pb-1.5">
+        {ais.length === 0 && (
+          <span className="text-xs text-amber-500">사이드바(▭)에서 AI를 추가하세요</span>
+        )}
+        {ais.map((ai) => {
+          const sel = ai.id === currentId
+          return (
+            <button
+              key={ai.id}
+              onClick={() => setSelectedAiId(ai.id)}
+              className={`flex h-8 shrink-0 items-center gap-1 rounded-full border px-2.5 text-xs active:scale-95 ${
+                sel
+                  ? 'border-blue-600 bg-blue-600 text-white'
+                  : 'border-slate-300 bg-white text-slate-700 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200'
+              }`}
+            >
+              <AiIcon ai={ai} size={16} />
+              <span>{ai.name}</span>
+            </button>
+          )
+        })}
+      </div>
 
       {/* 질문 입력 + 보내기 */}
       <div className="flex items-end gap-2 px-2">
@@ -66,22 +94,13 @@ export default function QuestionBar() {
           className="flex h-11 shrink-0 items-center gap-1.5 rounded-lg bg-blue-600 px-3 text-sm font-medium text-white active:scale-95 disabled:opacity-50"
           title={current ? `${current.name} 로 보내기` : 'AI를 먼저 선택하세요'}
         >
-          {current && <AiIcon ai={current} size={18} />}
-          <span>보내기</span>
+          {busy ? <span className="animate-spin">↻</span> : current && <AiIcon ai={current} size={18} />}
+          <span>{busy ? '처리 중…' : '보내기'}</span>
         </button>
       </div>
 
-      {/* 선택된 AI + 질문 범위 */}
+      {/* 질문 범위 */}
       <div className="flex flex-wrap items-center gap-x-3 gap-y-1 px-3 py-2 text-xs text-slate-600 dark:text-slate-400">
-        {current ? (
-          <span className="flex items-center gap-1 text-slate-500">
-            <AiIcon ai={current} size={14} />
-            {current.name}
-          </span>
-        ) : (
-          <span className="text-amber-500">사이드바에서 AI를 추가/선택하세요</span>
-        )}
-        <span className="text-slate-300 dark:text-slate-600">|</span>
         <label className="flex items-center gap-1">
           <input
             type="radio"

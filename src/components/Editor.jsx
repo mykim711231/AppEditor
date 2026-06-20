@@ -35,6 +35,7 @@ export default function Editor({ onSelectionChange }) {
   const activeTab = useStore((s) => s.activeTab)
   const settings = useStore((s) => s.settings)
   const updateContent = useStore((s) => s.updateContent)
+  const createFile = useStore((s) => s.createFile)
   const file = nodes.find((n) => n.id === activeTab)
   const [langExt, setLangExt] = useState(null)
   const viewRef = useRef(null)
@@ -128,11 +129,21 @@ export default function Editor({ onSelectionChange }) {
 
   if (!file) {
     return (
-      <div className="flex h-full items-center justify-center text-slate-400 dark:text-slate-500">
+      <div className="flex h-full items-center justify-center text-slate-500 dark:text-slate-400">
         <div className="px-6 text-center">
           <div className="mb-3 text-5xl">📝</div>
           <p className="text-sm">열린 파일이 없습니다.</p>
-          <p className="mt-1 text-xs">왼쪽 파일 목록에서 파일을 선택하거나 새로 만드세요.</p>
+          <p className="mt-1 text-xs text-slate-400">사이드바(▭)에서 파일을 선택하거나 새로 만드세요.</p>
+          <button
+            onClick={async () => {
+              const { uiPrompt } = await import('../store')
+              const name = await uiPrompt({ title: '새 파일', message: '확장자 포함', defaultValue: '새파일.js' })
+              if (name && name.trim()) createFile(name.trim(), null)
+            }}
+            className="mt-4 rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-medium text-white active:scale-95"
+          >
+            📄 새 파일 만들기
+          </button>
         </div>
       </div>
     )

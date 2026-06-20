@@ -213,6 +213,7 @@ export const useStore = create((set, get) => ({
     set((s) => ({
       openTabs: s.openTabs.includes(id) ? s.openTabs : [...s.openTabs, id],
       activeTab: id,
+      codeSelection: '', // 다른 파일로 전환 시 이전 선택 초기화
     }))
   },
 
@@ -226,7 +227,7 @@ export const useStore = create((set, get) => ({
   },
 
   setActiveTab(id) {
-    set({ activeTab: id })
+    set({ activeTab: id, codeSelection: '' })
   },
 
   // 편집 내용 저장 (자동 저장)

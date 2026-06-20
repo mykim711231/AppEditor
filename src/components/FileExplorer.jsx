@@ -115,22 +115,22 @@ function NodeRow({ node, depth }) {
     <div ref={setNodeRef} style={style}>
       <div
         onClick={onRowClick}
-        className={`group flex items-center gap-1 rounded py-1 pr-1 text-sm ${
+        className={`group flex items-center gap-1 rounded py-1.5 pr-1 text-sm ${
           active
             ? 'bg-blue-100 text-blue-900 dark:bg-blue-900/40 dark:text-blue-100'
             : 'text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800'
         }`}
       >
         {/* 드래그 핸들 */}
-        <span
+        <button
           {...attributes}
           {...listeners}
-          className="cursor-grab touch-none px-0.5 text-slate-300 dark:text-slate-600"
+          className="flex h-8 w-6 shrink-0 cursor-grab touch-none items-center justify-center text-slate-400 active:cursor-grabbing dark:text-slate-500"
           onClick={(e) => e.stopPropagation()}
           aria-label="드래그하여 순서 변경"
         >
           ⠿
-        </span>
+        </button>
         <span className="w-4 text-center">
           {isFolder ? (node.expanded ? '📂' : '📁') : '📄'}
         </span>
@@ -160,15 +160,17 @@ function NodeRow({ node, depth }) {
             <>
               <button
                 title="파일 추가"
+                aria-label="파일 추가"
                 onClick={(e) => onAddChild(e, 'file')}
-                className="rounded px-1 text-xs hover:bg-slate-200 dark:hover:bg-slate-700"
+                className="flex h-8 w-8 items-center justify-center rounded-lg text-sm hover:bg-slate-200 active:bg-slate-300 dark:hover:bg-slate-700"
               >
                 ＋📄
               </button>
               <button
                 title="폴더 추가"
+                aria-label="폴더 추가"
                 onClick={(e) => onAddChild(e, 'folder')}
-                className="rounded px-1 text-xs hover:bg-slate-200 dark:hover:bg-slate-700"
+                className="flex h-8 w-8 items-center justify-center rounded-lg text-sm hover:bg-slate-200 active:bg-slate-300 dark:hover:bg-slate-700"
               >
                 ＋📁
               </button>
@@ -176,18 +178,20 @@ function NodeRow({ node, depth }) {
           )}
           <button
             title="이름 변경"
+            aria-label="이름 변경"
             onClick={(e) => {
               e.stopPropagation()
               setEditing(true)
             }}
-            className="rounded px-1 text-xs hover:bg-slate-200 dark:hover:bg-slate-700"
+            className="flex h-8 w-8 items-center justify-center rounded-lg text-sm hover:bg-slate-200 active:bg-slate-300 dark:hover:bg-slate-700"
           >
             ✏️
           </button>
           <button
             title="삭제"
+            aria-label="삭제"
             onClick={onDelete}
-            className="rounded px-1 text-xs hover:bg-red-100 dark:hover:bg-red-900/40"
+            className="flex h-8 w-8 items-center justify-center rounded-lg text-sm hover:bg-red-100 active:bg-red-200 dark:hover:bg-red-900/40"
           >
             🗑️
           </button>

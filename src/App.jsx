@@ -45,7 +45,7 @@ export default function App() {
     return () => clearTimeout(t)
   }, [notice, clearNotice])
 
-  // 외부 키보드 단축키: Cmd/Ctrl+B 사이드바, Cmd/Ctrl+P 검색, Esc 집중 모드
+  // 외부 키보드 단축키: Cmd/Ctrl+B 사이드바, Cmd/Ctrl+P 검색, Esc(다이얼로그>모달>메뉴>집중모드)
   useEffect(() => {
     const onKey = (e) => {
       const mod = e.metaKey || e.ctrlKey
@@ -56,7 +56,11 @@ export default function App() {
         e.preventDefault()
         openModal('search')
       } else if (e.key === 'Escape') {
-        toggleBars()
+        const s = useStore.getState()
+        if (s.dialog) s.resolveDialog(s.dialog.kind === 'prompt' ? null : false)
+        else if (s.activeModal) s.closeModal()
+        else if (s.menuOpen) s.closeMenu()
+        else toggleBars()
       }
     }
     window.addEventListener('keydown', onKey)
@@ -139,7 +143,17 @@ export default function App() {
         </main>
       </div>
 
-      {/* 집중 모드에서 질의 바가 숨겨졌을 때: 어디서든 질의 바 호출 */}
+      {/* 집중 모드: 해제 버튼(우상단) + 질의 바 호출(우하단) */}
+      {barsHidden && (
+        <button
+          onClick={toggleBars}
+          className="safe-top fixed right-3 top-3 z-40 flex h-10 w-10 items-center justify-center rounded-full bg-slate-900/80 text-base text-white shadow-lg active:scale-95 dark:bg-slate-700/90"
+          title="집중 모드 해제"
+          aria-label="집중 모드 해제"
+        >
+          👁
+        </button>
+      )}
       {barsHidden && !aiPanelOpen && (
         <button
           onClick={() => setAiPanel(true)}

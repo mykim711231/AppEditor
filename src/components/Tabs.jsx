@@ -31,7 +31,7 @@ export default function Tabs() {
                 e.stopPropagation()
                 closeTab(id)
               }}
-              className="ml-1 flex h-9 w-9 items-center justify-center rounded text-slate-400 hover:bg-slate-300 hover:text-slate-700 dark:hover:bg-slate-600 dark:hover:text-white"
+              className="ml-2 flex h-10 w-10 items-center justify-center rounded text-base text-slate-400 hover:bg-slate-300 hover:text-slate-700 active:bg-slate-400 dark:hover:bg-slate-600 dark:hover:text-white"
               aria-label="탭 닫기"
             >
               ×

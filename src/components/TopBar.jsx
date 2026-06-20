@@ -29,7 +29,7 @@ export default function TopBar() {
   }, [menuOpen, closeMenu])
 
   const btn =
-    'flex h-11 w-11 items-center justify-center rounded-lg text-lg hover:bg-slate-200 dark:hover:bg-slate-700'
+    'flex h-11 w-11 items-center justify-center rounded-lg text-lg hover:bg-slate-200 active:bg-slate-300 dark:hover:bg-slate-700 dark:active:bg-slate-600'
 
   return (
     <div className="safe-top relative flex items-center gap-0.5 border-b border-slate-200 bg-slate-100 px-1.5 py-1 dark:border-slate-700 dark:bg-slate-800">
@@ -63,17 +63,12 @@ export default function TopBar() {
         ▭
       </button>
 
-      {/* 🔍 검색 */}
-      <button onClick={() => openModal('search')} className={btn} title="검색 (Cmd+P)" aria-label="검색">
-        🔍
-      </button>
-
       {/* 파일명 */}
       <div className="flex min-w-0 flex-1 flex-col px-1 leading-tight">
         <span className="truncate text-sm font-medium text-slate-800 dark:text-slate-100">
           {file ? file.name : '모바일 코드 에디터'}
         </span>
-        {file && <span className="text-[10px] text-slate-400">{languageLabel(file.name)}</span>}
+        {file && <span className="text-[11px] text-slate-500 dark:text-slate-400">{languageLabel(file.name)}</span>}
       </div>
 
       {/* 📖 마크다운 미리보기 (.md 파일일 때만) */}

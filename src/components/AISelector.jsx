@@ -128,28 +128,31 @@ export default function AISelector() {
         <span className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
           질의할 AI 선택
         </span>
-        <div className="flex gap-1">
+        <div className="flex gap-1.5">
           <button
             onClick={() => setShowAdd((v) => !v)}
             title="AI 추가"
-            className="rounded px-1.5 py-0.5 text-xs hover:bg-slate-200 dark:hover:bg-slate-700"
+            aria-label="AI 추가"
+            className="flex h-9 w-9 items-center justify-center rounded-lg text-sm hover:bg-slate-200 active:bg-slate-300 dark:hover:bg-slate-700"
           >
             ＋
           </button>
           <button
-            onClick={onRemove}
-            title="선택한 AI 삭제"
-            disabled={!current}
-            className="rounded px-1.5 py-0.5 text-xs hover:bg-red-100 disabled:opacity-40 dark:hover:bg-red-900/40"
-          >
-            🗑️
-          </button>
-          <button
             onClick={onRestoreDefaults}
             title="기본 AI 복원 (빠진 기본 AI 되살리기)"
-            className="rounded px-1.5 py-0.5 text-xs hover:bg-slate-200 dark:hover:bg-slate-700"
+            aria-label="기본 AI 복원"
+            className="flex h-9 w-9 items-center justify-center rounded-lg text-sm hover:bg-slate-200 active:bg-slate-300 dark:hover:bg-slate-700"
           >
             ♻️
+          </button>
+          <button
+            onClick={onRemove}
+            title="선택한 AI 삭제"
+            aria-label="선택한 AI 삭제"
+            disabled={!current}
+            className="flex h-9 w-9 items-center justify-center rounded-lg text-sm hover:bg-red-100 active:bg-red-200 disabled:opacity-40 dark:hover:bg-red-900/40"
+          >
+            🗑️
           </button>
         </div>
       </div>
@@ -216,7 +219,7 @@ export default function AISelector() {
             placeholder="채팅 페이지 URL (https://...)"
             className="w-full rounded border border-slate-300 bg-white px-2 py-1 text-sm dark:border-slate-600 dark:bg-slate-800 dark:text-white"
           />
-          <p className="text-[10px] text-slate-400">
+          <p className="text-[11px] text-slate-500 dark:text-slate-400">
             ※ 로그인해서 붙여넣기 할 수 있는 AI 채팅 페이지 주소여야 합니다.
           </p>
           <div className="flex gap-1.5">
@@ -236,7 +239,9 @@ export default function AISelector() {
         </div>
       )}
 
-      <p className="mb-1 text-[10px] text-slate-400">선택 후 하단 질문창의 ‘보내기’로 전송</p>
+      <p className="mb-1 text-[11px] text-slate-500 dark:text-slate-400">
+        하단 질문창의 AI 칩으로도 빠르게 선택할 수 있어요
+      </p>
 
       {/* 드래그로 순서 변경 (펼침) */}
       {ais.length > 1 && (
