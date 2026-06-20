@@ -63,6 +63,8 @@ export default function AIBar({ selection }) {
   const addAI = useStore((s) => s.addAI)
   const nodes = useStore((s) => s.nodes)
   const activeTab = useStore((s) => s.activeTab)
+  const barsHidden = useStore((s) => s.barsHidden)
+  const setAiPanel = useStore((s) => s.setAiPanel)
 
   const [question, setQuestion] = useState('')
   const [scope, setScope] = useState('selection') // 'selection' | 'all'
@@ -118,8 +120,18 @@ export default function AIBar({ selection }) {
 
   return (
     <div className="border-t border-slate-200 bg-slate-50 dark:border-slate-700 dark:bg-slate-900">
+      {/* 드래그 핸들: 스와이프 가능 표시 + 집중 모드에선 탭하면 닫힘 */}
+      <button
+        onClick={() => barsHidden && setAiPanel(false)}
+        className="flex w-full justify-center py-1.5"
+        title={barsHidden ? 'AI 패널 닫기 (또는 아래로 스와이프)' : '위/아래로 스와이프하여 AI 패널 표시·숨김'}
+        aria-label="AI 패널 핸들"
+      >
+        <span className="h-1 w-10 rounded-full bg-slate-300 dark:bg-slate-600" />
+      </button>
+
       {/* 질문 입력 + 범위 선택 */}
-      <div className="flex items-center gap-2 px-2 pt-2">
+      <div className="flex items-center gap-2 px-2">
         <input
           value={question}
           onChange={(e) => setQuestion(e.target.value)}

@@ -97,6 +97,18 @@ export default function App() {
         </main>
       </div>
 
+      {/* 집중 모드에서 AI 바가 숨겨졌을 때: 어디서든 AI 호출 (스와이프 대체) */}
+      {barsHidden && !aiPanelOpen && (
+        <button
+          onClick={() => setAiPanel(true)}
+          className="fixed bottom-5 right-5 z-40 flex h-12 w-12 items-center justify-center rounded-full bg-blue-600 text-xl text-white shadow-lg active:scale-95"
+          title="AI에게 질문 (패널 열기)"
+          aria-label="AI 패널 열기"
+        >
+          💬
+        </button>
+      )}
+
       {/* 모달 */}
       {activeModal === 'settings' && <Settings />}
       {activeModal === 'snippets' && <Snippets />}

@@ -196,6 +196,7 @@ function NodeRow({ node, depth }) {
 export default function FileExplorer() {
   const createFile = useStore((s) => s.createFile)
   const createFolder = useStore((s) => s.createFolder)
+  const toggleSidebar = useStore((s) => s.toggleSidebar)
 
   const onNewFile = () => {
     const name = prompt('파일 이름 (확장자 포함)', '새파일.js')
@@ -208,8 +209,19 @@ export default function FileExplorer() {
 
   return (
     <div className="flex h-full flex-col">
-      <div className="flex items-center justify-between border-b border-slate-200 px-2 py-1.5 dark:border-slate-700">
-        <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">파일</span>
+      <div className="flex items-center gap-1 border-b border-slate-200 px-1.5 py-1.5 dark:border-slate-700">
+        {/* VSCode식: 사이드 메뉴 상단 왼쪽 접기 버튼 */}
+        <button
+          onClick={toggleSidebar}
+          title="사이드바 접기 (Cmd+B)"
+          className="rounded px-1.5 py-0.5 text-base leading-none text-slate-500 hover:bg-slate-200 dark:text-slate-400 dark:hover:bg-slate-700"
+          aria-label="사이드바 접기"
+        >
+          «
+        </button>
+        <span className="flex-1 text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+          탐색기
+        </span>
         <div className="flex gap-1">
           <button
             onClick={onNewFile}
