@@ -63,6 +63,7 @@ export default function AISelector() {
   const addAI = useStore((s) => s.addAI)
   const removeAI = useStore((s) => s.removeAI)
   const reorderAIs = useStore((s) => s.reorderAIs)
+  const restoreDefaultAIs = useStore((s) => s.restoreDefaultAIs)
 
   const [busy, setBusy] = useState(false)
   const [toast, setToast] = useState('')
@@ -113,6 +114,11 @@ export default function AISelector() {
       removeAI(current.id)
   }
 
+  const onRestoreDefaults = () => {
+    const n = restoreDefaultAIs()
+    flash(n ? `기본 AI ${n}개 복원됨` : '복원할 기본 AI가 없습니다')
+  }
+
   const onDragEnd = (e) => {
     const { active, over } = e
     if (!over || active.id === over.id) return
@@ -141,6 +147,13 @@ export default function AISelector() {
             className="rounded px-1.5 py-0.5 text-xs hover:bg-red-100 disabled:opacity-40 dark:hover:bg-red-900/40"
           >
             🗑️
+          </button>
+          <button
+            onClick={onRestoreDefaults}
+            title="기본 AI 복원 (빠진 기본 AI 되살리기)"
+            className="rounded px-1.5 py-0.5 text-xs hover:bg-slate-200 dark:hover:bg-slate-700"
+          >
+            ♻️
           </button>
         </div>
       </div>

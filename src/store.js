@@ -291,6 +291,21 @@ export const useStore = create((set, get) => ({
       return { ais, selectedAiId }
     })
   },
+  // 실수로 지운 기본 AI 복원 (커스텀 AI는 보존, 빠진 기본만 추가)
+  restoreDefaultAIs() {
+    const s = get()
+    const ids = new Set(s.ais.map((a) => a.id))
+    const names = new Set(s.ais.map((a) => a.name.toLowerCase()))
+    const missing = DEFAULT_AIS.filter(
+      (d) => !ids.has(d.id) && !names.has(d.name.toLowerCase())
+    )
+    if (missing.length) {
+      const ais = [...s.ais, ...missing]
+      LS.set('ais', ais)
+      set({ ais, selectedAiId: s.selectedAiId || ais[0]?.id || null })
+    }
+    return missing.length
+  },
   reorderAIs(orderedIds) {
     set((s) => {
       const map = new Map(s.ais.map((a) => [a.id, a]))
