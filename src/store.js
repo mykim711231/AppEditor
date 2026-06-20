@@ -1,7 +1,7 @@
 import { create } from 'zustand'
 import { uid } from './lib/id'
 import * as db from './lib/db'
-import { DEFAULT_AIS } from './lib/ai'
+import { DEFAULT_AIS, sendToAI } from './lib/ai'
 
 // ---- localStorage 헬퍼 ----
 const LS = {
@@ -60,6 +60,12 @@ export const useStore = create((set, get) => ({
   settings: { ...DEFAULT_SETTINGS, ...LS.get('settings', {}) },
   ais: LS.get('ais', DEFAULT_AIS),
   snippets: LS.get('snippets', []),
+
+  // ---- AI 질의 공유 상태 (질문 바: 하단 / AI 선택: 사이드바) ----
+  aiQuestion: '',
+  aiScope: 'selection', // 'selection' | 'all'
+  codeSelection: '', // 에디터에서 선택된 텍스트
+  selectedAiId: null, // 사이드바 콤보박스에서 고른 AI (null이면 첫 번째)
 
   // UI 상태
   sidebarOpen: true,
@@ -220,19 +226,46 @@ export const useStore = create((set, get) => ({
     })
   },
 
+  // ---- AI 질의 입력 ----
+  setAiQuestion: (v) => set({ aiQuestion: v }),
+  setAiScope: (v) => set({ aiScope: v }),
+  setCodeSelection: (v) => set({ codeSelection: v }),
+  setSelectedAiId: (id) => set({ selectedAiId: id }),
+
+  // 선택된 범위/질문/AI로 전송 (클립보드 복사 + 새 탭 + 히스토리 저장)
+  async sendQuestion(ai) {
+    const { aiQuestion, aiScope, codeSelection, nodes, activeTab } = get()
+    const file = nodes.find((n) => n.id === activeTab)
+    const code = aiScope === 'all' ? file?.content || '' : codeSelection || file?.content || ''
+    const res = await sendToAI(ai, { question: aiQuestion, code, scope: aiScope })
+    await db.addHistory({
+      id: uid(),
+      ai: ai.name,
+      question: aiQuestion,
+      code,
+      scope: aiScope,
+      createdAt: Date.now(),
+    })
+    return res
+  },
+
   // ---- AI 목록 ----
   addAI(ai) {
+    let created
     set((s) => {
-      const ais = [...s.ais, { ...ai, id: uid() }]
+      created = { ...ai, id: uid() }
+      const ais = [...s.ais, created]
       LS.set('ais', ais)
-      return { ais }
+      return { ais, selectedAiId: created.id }
     })
+    return created
   },
   removeAI(id) {
     set((s) => {
       const ais = s.ais.filter((a) => a.id !== id)
       LS.set('ais', ais)
-      return { ais }
+      const selectedAiId = s.selectedAiId === id ? ais[0]?.id ?? null : s.selectedAiId
+      return { ais, selectedAiId }
     })
   },
   reorderAIs(orderedIds) {

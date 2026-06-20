@@ -1,10 +1,11 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef } from 'react'
 import { useStore } from './store'
 import TopBar from './components/TopBar'
 import Tabs from './components/Tabs'
 import Editor from './components/Editor'
 import FileExplorer from './components/FileExplorer'
-import AIBar from './components/AIBar'
+import AISelector from './components/AISelector'
+import QuestionBar from './components/QuestionBar'
 import Settings from './components/Settings'
 import Snippets from './components/Snippets'
 import History from './components/History'
@@ -18,9 +19,9 @@ export default function App() {
   const setAiPanel = useStore((s) => s.setAiPanel)
   const toggleSidebar = useStore((s) => s.toggleSidebar)
   const toggleBars = useStore((s) => s.toggleBars)
+  const setCodeSelection = useStore((s) => s.setCodeSelection)
   const activeModal = useStore((s) => s.activeModal)
 
-  const [selection, setSelection] = useState('')
   const touchStart = useRef(null)
 
   useEffect(() => {
@@ -68,18 +69,21 @@ export default function App() {
     )
   }
 
-  // AI 바 표시 여부: 집중 모드가 아니거나 스와이프로 강제로 열린 경우
-  const showAIBar = !barsHidden || aiPanelOpen
+  // 하단 질의 바 표시 여부: 집중 모드가 아니거나 스와이프/FAB로 열린 경우
+  const showQuestionBar = !barsHidden || aiPanelOpen
 
   return (
     <div className="flex h-full flex-col bg-white dark:bg-slate-900">
       <TopBar />
 
       <div className="flex min-h-0 flex-1">
-        {/* 사이드바 (파일 탐색기) */}
+        {/* 사이드바: 파일 탐색기 + AI 선택(콤보박스) */}
         {sidebarOpen && !barsHidden && (
-          <aside className="w-56 shrink-0 border-r border-slate-200 bg-slate-50 dark:border-slate-700 dark:bg-slate-800/50 md:w-64">
-            <FileExplorer />
+          <aside className="flex w-56 shrink-0 flex-col border-r border-slate-200 bg-slate-50 dark:border-slate-700 dark:bg-slate-800/50 md:w-64">
+            <div className="min-h-0 flex-1 overflow-hidden">
+              <FileExplorer />
+            </div>
+            <AISelector />
           </aside>
         )}
 
@@ -91,19 +95,19 @@ export default function App() {
         >
           <Tabs />
           <div className="min-h-0 flex-1">
-            <Editor onSelectionChange={setSelection} />
+            <Editor onSelectionChange={setCodeSelection} />
           </div>
-          {showAIBar && <AIBar selection={selection} />}
+          {showQuestionBar && <QuestionBar />}
         </main>
       </div>
 
-      {/* 집중 모드에서 AI 바가 숨겨졌을 때: 어디서든 AI 호출 (스와이프 대체) */}
+      {/* 집중 모드에서 질의 바가 숨겨졌을 때: 어디서든 질의 바 호출 (스와이프 대체) */}
       {barsHidden && !aiPanelOpen && (
         <button
           onClick={() => setAiPanel(true)}
           className="fixed bottom-5 right-5 z-40 flex h-12 w-12 items-center justify-center rounded-full bg-blue-600 text-xl text-white shadow-lg active:scale-95"
-          title="AI에게 질문 (패널 열기)"
-          aria-label="AI 패널 열기"
+          title="AI에게 질문 (질의 바 열기)"
+          aria-label="질의 바 열기"
         >
           💬
         </button>
