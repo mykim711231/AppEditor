@@ -13,6 +13,7 @@ import SearchModal from './components/SearchModal'
 import GitHubModal from './components/GitHubModal'
 import OracleModal from './components/OracleModal'
 import TemplatesModal from './components/TemplatesModal'
+import SetupModal from './components/SetupModal'
 import DocsModal from './components/DocsModal'
 import DialogHost from './components/DialogHost'
 import { MessageSquare, Eye, CheckCircle2, XCircle, AlertTriangle, Info } from 'lucide-react'
@@ -176,6 +177,7 @@ export default function App() {
       {activeModal === 'github' && <GitHubModal />}
       {activeModal === 'oracle' && <OracleModal />}
       {activeModal === 'templates' && <TemplatesModal />}
+      {activeModal === 'setup' && <SetupModal />}
       {activeModal === 'docs' && <DocsModal />}
 
       {/* 인앱 다이얼로그 + 전역 토스트 */}
