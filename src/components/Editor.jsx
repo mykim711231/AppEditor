@@ -2,11 +2,33 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import CodeMirror from '@uiw/react-codemirror'
 import { oneDark } from '@codemirror/theme-one-dark'
 import { EditorView, rectangularSelection, crosshairCursor } from '@codemirror/view'
+import { EditorState } from '@codemirror/state'
 import { lintGutter } from '@codemirror/lint'
 import { useStore } from '../store'
 import { loadLanguageExtension } from '../lib/languages'
 import { codeLinter } from '../lib/lint'
 import EditorToolbar from './EditorToolbar'
+
+// 찾기·바꾸기 패널 한국어화
+const koreanPhrases = EditorState.phrases.of({
+  'Go to line': '줄 이동',
+  go: '이동',
+  Find: '찾기',
+  Replace: '바꾸기',
+  next: '다음',
+  previous: '이전',
+  all: '전체',
+  'match case': '대소문자 구분',
+  'by word': '단어 단위',
+  regexp: '정규식',
+  replace: '바꾸기',
+  'replace all': '모두 바꾸기',
+  close: '닫기',
+  'current match': '현재 일치',
+  'replaced $ matches': '$개 바꿈',
+  'replaced match on line $': '$줄에서 바꿈',
+  'on line': '줄:',
+})
 
 export default function Editor({ onSelectionChange }) {
   const nodes = useStore((s) => s.nodes)
@@ -77,6 +99,7 @@ export default function Editor({ onSelectionChange }) {
   const extensions = useMemo(() => {
     const exts = [
       EditorView.lineWrapping,
+      koreanPhrases,
       // 열(블록) 편집: Alt+드래그 사각 선택 (데스크톱/DeX)
       rectangularSelection(),
       crosshairCursor(),
