@@ -240,7 +240,7 @@ export default function AISelector() {
       )}
 
       <p className="mb-1 text-[11px] text-slate-500 dark:text-slate-400">
-        하단 질문창의 AI 칩으로도 빠르게 선택할 수 있어요
+        여기서 AI 선택 후 하단 질문창의 ‘보내기’로 전송
       </p>
 
       {/* 드래그로 순서 변경 (펼침) */}

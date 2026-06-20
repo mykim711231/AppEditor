@@ -15,9 +15,9 @@ export default function QuestionBar() {
   const setAiPanel = useStore((s) => s.setAiPanel)
   const ais = useStore((s) => s.ais)
   const selectedAiId = useStore((s) => s.selectedAiId)
-  const setSelectedAiId = useStore((s) => s.setSelectedAiId)
   const sendQuestion = useStore((s) => s.sendQuestion)
   const notify = useStore((s) => s.notify)
+  const setSidebar = useStore((s) => s.setSidebar)
 
   const [busy, setBusy] = useState(false)
   const currentId = selectedAiId && ais.some((a) => a.id === selectedAiId) ? selectedAiId : ais[0]?.id
@@ -54,30 +54,6 @@ export default function QuestionBar() {
         <span className="h-1 w-10 rounded-full bg-slate-300 dark:bg-slate-600" />
       </button>
 
-      {/* AI 칩 선택 (가로 스크롤) */}
-      <div className="flex gap-1.5 overflow-x-auto px-2 pb-1.5">
-        {ais.length === 0 && (
-          <span className="text-xs text-amber-500">사이드바(▭)에서 AI를 추가하세요</span>
-        )}
-        {ais.map((ai) => {
-          const sel = ai.id === currentId
-          return (
-            <button
-              key={ai.id}
-              onClick={() => setSelectedAiId(ai.id)}
-              className={`flex h-8 shrink-0 items-center gap-1 rounded-full border px-2.5 text-xs active:scale-95 ${
-                sel
-                  ? 'border-blue-600 bg-blue-600 text-white'
-                  : 'border-slate-300 bg-white text-slate-700 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200'
-              }`}
-            >
-              <AiIcon ai={ai} size={16} />
-              <span>{ai.name}</span>
-            </button>
-          )
-        })}
-      </div>
-
       {/* 질문 입력 + 보내기 */}
       <div className="flex items-end gap-2 px-2">
         <TextInput
@@ -99,8 +75,24 @@ export default function QuestionBar() {
         </button>
       </div>
 
-      {/* 질문 범위 */}
+      {/* 선택 AI(탭하면 사이드바에서 변경) + 질문 범위 — 한 줄로 공간 절약 */}
       <div className="flex flex-wrap items-center gap-x-3 gap-y-1 px-3 py-2 text-xs text-slate-600 dark:text-slate-400">
+        <button
+          onClick={() => setSidebar(true)}
+          className="flex items-center gap-1 rounded text-slate-500 active:opacity-70 dark:text-slate-300"
+          title="AI 변경 (사이드바)"
+        >
+          {current ? (
+            <>
+              <AiIcon ai={current} size={14} />
+              <span>{current.name}</span>
+              <span className="text-slate-400">▾</span>
+            </>
+          ) : (
+            <span className="text-amber-500">AI 선택 ▾</span>
+          )}
+        </button>
+        <span className="text-slate-300 dark:text-slate-600">|</span>
         <label className="flex items-center gap-1">
           <input
             type="radio"
