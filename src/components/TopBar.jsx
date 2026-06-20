@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react'
-import { Menu, PanelLeft, Eye, BookOpen, Search, Database, GitBranch, History, Settings } from 'lucide-react'
+import { Menu, PanelLeft, Eye, BookOpen, Search, Database, GitBranch, History, Settings, Library } from 'lucide-react'
 import { useStore } from '../store'
 import { languageLabel } from '../lib/languages'
 
@@ -33,6 +33,7 @@ export default function TopBar() {
 
   const menuItems = [
     ['search', '검색', Search],
+    ['docs', '언어 공식 문서', Library],
     ['oracle', 'Oracle 템플릿', Database],
     ['github', 'GitHub 연동', GitBranch],
     ['history', 'AI 히스토리', History],
