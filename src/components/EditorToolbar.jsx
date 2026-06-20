@@ -1,4 +1,4 @@
-import { useStore, uiPrompt } from '../store'
+import { uiPrompt } from '../store'
 import {
   undo,
   redo,
@@ -12,9 +12,8 @@ import {
 } from '../lib/editorCommands'
 
 // 에디터 동작 툴바 (모바일 버튼 접근). viewRef 로 CodeMirror 명령 실행.
-export default function EditorToolbar({ viewRef, onSave }) {
-  const notify = useStore((s) => s.notify)
-
+// 파일은 자동저장이므로 별도 저장 버튼은 없음.
+export default function EditorToolbar({ viewRef }) {
   const run = (cmd) => () => {
     const view = viewRef.current
     if (!view) return
@@ -29,11 +28,6 @@ export default function EditorToolbar({ viewRef, onSave }) {
     if (text != null && text !== '') insertAtLineStart(view, text)
   }
 
-  const onSaveClick = () => {
-    onSave?.()
-    notify('저장됨')
-  }
-
   const Btn = ({ onClick, title, children }) => (
     <button
       onClick={onClick}
@@ -46,10 +40,6 @@ export default function EditorToolbar({ viewRef, onSave }) {
 
   return (
     <div className="flex items-center gap-1 overflow-x-auto border-b border-slate-200 bg-slate-50 px-1.5 py-1 dark:border-slate-700 dark:bg-slate-800/60">
-      <Btn onClick={onSaveClick} title="저장 (자동저장 됨)">
-        💾 저장
-      </Btn>
-      <span className="mx-0.5 h-5 w-px bg-slate-300 dark:bg-slate-600" />
       <Btn onClick={run(undo)} title="실행취소 (Ctrl+Z)">
         ↩︎
       </Btn>
