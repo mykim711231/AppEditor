@@ -17,9 +17,7 @@ var count = 42;                 // int로 추론
 var items = new List<string>(); // List<string>으로 추론` },
         { name: '상수', code: `const int MaxRetries = 3;           // 변경 불가 상수
 const string DefaultName = "Unknown";` },
-        { name: '탑레벨 구문', code: `// Program.cs - no class/Main needed
-using System;
-
+        { name: '탑레벨 구문', code: `// Program.cs - no class/Main needed (using System은 암묵적으로 포함됨)
 Console.WriteLine("Top-level statements");
 var result = Add(2, 3);
 Console.WriteLine(result);
@@ -250,8 +248,7 @@ Console.WriteLine($"Pi = {Math.PI:F4}");` },
         "age": 30
     }
     """;` },
-        { name: 'StringBuilder', code: `using System.Text;
-
+        { name: 'StringBuilder', code: `// System.Text은 암묵적으로 포함됨
 var sb = new StringBuilder();
 sb.Append("Hello");
 sb.Append(", ");
@@ -474,7 +471,9 @@ string content = await reader.ReadToEndAsync();` },
     {
       title: '비동기',
       items: [
-        { name: 'async / await 기본', code: `async Task<string> FetchDataAsync(string url)
+        { name: 'async / await 기본', code: `using System.Net.Http;
+
+async Task<string> FetchDataAsync(string url)
 {
     using var client = new HttpClient();
     return await client.GetStringAsync(url);
@@ -582,8 +581,11 @@ finally
 }
 
 throw new ValidationException("Email", "Invalid format");` },
-        { name: '예외 필터', code: `try { await CallServiceAsync(); }
-catch (HttpRequestException ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound)
+        { name: '예외 필터', code: `using System.Net;
+using System.Net.Http;
+
+try { await CallServiceAsync(); }
+catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.NotFound)
 {
     Console.WriteLine("리소스 없음");
 }
@@ -643,7 +645,9 @@ catch
         throw; // re-throw to propagate
     }
 }` },
-        { name: '예외 로깅 패턴', code: `static async Task<T?> SafeExecuteAsync<T>(
+        { name: '예외 로깅 패턴', code: `using Microsoft.Extensions.Logging;
+
+static async Task<T?> SafeExecuteAsync<T>(
     Func<Task<T>> action,
     ILogger logger)
 {

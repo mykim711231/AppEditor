@@ -34,11 +34,13 @@ String s = "text"; // 문자열은 기본 타입이 아닌 클래스`,
         },
         {
           name: '배열 선언 및 초기화',
-          code: `int[] nums = {1, 2, 3, 4, 5};
+          code: `import java.util.Arrays;
+
+int[] nums = {1, 2, 3, 4, 5};
 String[] words = new String[3];
 words[0] = "foo";
 System.out.println(nums.length);          // 5
-System.out.println(java.util.Arrays.toString(nums));`,
+System.out.println(Arrays.toString(nums));`,
         },
         {
           name: '텍스트 블록 (Text Block)',
@@ -141,7 +143,9 @@ System.out.println(result);  // 21`,
         },
         {
           name: 'for-each 루프',
-          code: `var list = java.util.List.of("a", "b", "c");
+          code: `import java.util.List;
+
+var list = List.of("a", "b", "c");
 for (String s : list) {
     System.out.println(s);
 }`,
@@ -368,40 +372,46 @@ public static <T extends Comparable<T>> T max(T a, T b) {
         },
         {
           name: '와일드카드 (Wildcard)',
-          code: `// 상한 경계(? extends): Number 및 하위 타입 읽기 — Producer Extends
-static double sum(java.util.List<? extends Number> list) {
+          code: `import java.util.List;
+
+// 상한 경계(? extends): Number 및 하위 타입 읽기 — Producer Extends
+static double sum(List<? extends Number> list) {
     double s = 0;
     for (Number n : list) s += n.doubleValue();
     return s;
 }
 
 // 하한 경계(? super): Integer 및 상위 타입에 쓰기 — Consumer Super
-static void addInts(java.util.List<? super Integer> list) {
+static void addInts(List<? super Integer> list) {
     list.add(1); list.add(2);
 }`,
         },
         {
           name: 'Comparable 구현',
-          code: `record Student(String name, int grade) implements Comparable<Student> {
+          code: `import java.util.*;
+
+record Student(String name, int grade) implements Comparable<Student> {
     @Override
     public int compareTo(Student o) {
         return Integer.compare(this.grade, o.grade);
     }
 }
 
-var s = new java.util.ArrayList<>(java.util.List.of(
+var s = new ArrayList<>(List.of(
     new Student("Bob", 80), new Student("Alice", 90)));
-java.util.Collections.sort(s);`,
+Collections.sort(s);`,
         },
         {
           name: 'Iterable 구현',
-          code: `class Range implements Iterable<Integer> {
+          code: `import java.util.Iterator;
+
+class Range implements Iterable<Integer> {
     private final int from, to;
     Range(int from, int to) { this.from = from; this.to = to; }
 
     @Override
-    public java.util.Iterator<Integer> iterator() {
-        return new java.util.Iterator<>() {
+    public Iterator<Integer> iterator() {
+        return new Iterator<>() {
             int cur = from;
             public boolean hasNext() { return cur < to; }
             public Integer next()    { return cur++; }
@@ -511,29 +521,35 @@ System.out.println(s.isBlank());        // false`,
       items: [
         {
           name: 'List (불변/가변)',
-          code: `// 불변
-var immutable = java.util.List.of(1, 2, 3);
+          code: `import java.util.*;
+
+// 불변
+var immutable = List.of(1, 2, 3);
 
 // 가변
-var mutable = new java.util.ArrayList<>(immutable);
+var mutable = new ArrayList<>(immutable);
 mutable.add(4);
 mutable.remove(Integer.valueOf(2));
 System.out.println(mutable);  // [1, 3, 4]`,
         },
         {
           name: 'Map (불변/가변)',
-          code: `// 불변
-var map = java.util.Map.of("a", 1, "b", 2, "c", 3);
+          code: `import java.util.*;
+
+// 불변
+var map = Map.of("a", 1, "b", 2, "c", 3);
 
 // 가변
-var mmap = new java.util.HashMap<>(map);
+var mmap = new HashMap<>(map);
 mmap.put("d", 4);
 mmap.putIfAbsent("a", 99);   // 이미 있으므로 무시
 System.out.println(mmap.getOrDefault("z", -1));  // -1`,
         },
         {
           name: 'Set',
-          code: `var set = new java.util.HashSet<>(java.util.List.of(1, 2, 3, 2, 1));
+          code: `import java.util.*;
+
+var set = new HashSet<>(List.of(1, 2, 3, 2, 1));
 System.out.println(set.size());   // 3
 set.add(4);
 set.remove(2);
@@ -541,7 +557,9 @@ System.out.println(set.contains(3));  // true`,
         },
         {
           name: 'LinkedHashMap (순서 보존)',
-          code: `var lhm = new java.util.LinkedHashMap<String, Integer>();
+          code: `import java.util.LinkedHashMap;
+
+var lhm = new LinkedHashMap<String, Integer>();
 lhm.put("banana", 3);
 lhm.put("apple",  1);
 lhm.put("cherry", 2);
@@ -549,7 +567,9 @@ lhm.forEach((k, v) -> System.out.println(k + "=" + v));`,
         },
         {
           name: 'TreeMap (정렬)',
-          code: `var tm = new java.util.TreeMap<String, Integer>();
+          code: `import java.util.TreeMap;
+
+var tm = new TreeMap<String, Integer>();
 tm.put("c", 3); tm.put("a", 1); tm.put("b", 2);
 System.out.println(tm.firstKey());  // a
 System.out.println(tm.lastKey());   // c
@@ -557,7 +577,10 @@ System.out.println(tm.headMap("b")); // {a=1}`,
         },
         {
           name: 'Queue / Deque',
-          code: `java.util.Deque<String> deque = new java.util.ArrayDeque<>();
+          code: `import java.util.ArrayDeque;
+import java.util.Deque;
+
+Deque<String> deque = new ArrayDeque<>();
 deque.offerFirst("B");
 deque.offerFirst("A");
 deque.offerLast("C");
@@ -566,30 +589,36 @@ System.out.println(deque.peekLast());   // C`,
         },
         {
           name: 'Collections 유틸',
-          code: `var list = new java.util.ArrayList<>(java.util.List.of(3, 1, 4, 1, 5));
-java.util.Collections.sort(list);
-java.util.Collections.reverse(list);
-java.util.Collections.shuffle(list);
-int max = java.util.Collections.max(list);
+          code: `import java.util.*;
+
+var list = new ArrayList<>(List.of(3, 1, 4, 1, 5));
+Collections.sort(list);
+Collections.reverse(list);
+Collections.shuffle(list);
+int max = Collections.max(list);
 System.out.println(max);`,
         },
         {
           name: 'Map.Entry 순회',
-          code: `var scores = java.util.Map.of("Alice", 90, "Bob", 75);
+          code: `import java.util.*;
+
+var scores = Map.of("Alice", 90, "Bob", 75);
 scores.entrySet()
       .stream()
-      .sorted(java.util.Map.Entry.<String,Integer>comparingByValue().reversed())
+      .sorted(Map.Entry.<String,Integer>comparingByValue().reversed())
       .forEach(e -> System.out.println(e.getKey() + ": " + e.getValue()));`,
         },
         {
           name: 'computeIfAbsent / merge',
-          code: `var index = new java.util.HashMap<Character, java.util.List<Integer>>();
+          code: `import java.util.*;
+
+var index = new HashMap<Character, List<Integer>>();
 String s = "hello";
 for (int i = 0; i < s.length(); i++) {
-    index.computeIfAbsent(s.charAt(i), k -> new java.util.ArrayList<>()).add(i);
+    index.computeIfAbsent(s.charAt(i), k -> new ArrayList<>()).add(i);
 }
 // merge: 빈도 집계
-var freq = new java.util.HashMap<Character, Integer>();
+var freq = new HashMap<Character, Integer>();
 for (char c : s.toCharArray())
     freq.merge(c, 1, Integer::sum);`,
         },
@@ -600,8 +629,10 @@ for (char c : s.toCharArray())
       items: [
         {
           name: '기본 스트림 파이프라인',
-          code: `// 스트림: 원본 변경 없이 데이터를 선언적으로 처리
-var result = java.util.List.of(1, 2, 3, 4, 5, 6)
+          code: `import java.util.List;
+
+// 스트림: 원본 변경 없이 데이터를 선언적으로 처리
+var result = List.of(1, 2, 3, 4, 5, 6)
     .stream()
     .filter(n -> n % 2 == 0)  // 중간 연산: 짝수만
     .map(n -> n * n)           // 중간 연산: 제곱
@@ -610,33 +641,44 @@ System.out.println(result);  // [4, 16, 36]`,
         },
         {
           name: 'collect (Collectors)',
-          code: `// groupingBy: 첫 글자를 키로 그룹화
-var words = java.util.List.of("apple", "banana", "avocado", "blueberry");
+          code: `import java.util.List;
+import java.util.stream.Collectors;
+
+// groupingBy: 첫 글자를 키로 그룹화
+var words = List.of("apple", "banana", "avocado", "blueberry");
 var byInitial = words.stream()
-    .collect(java.util.stream.Collectors.groupingBy(w -> w.charAt(0)));
+    .collect(Collectors.groupingBy(w -> w.charAt(0)));
 System.out.println(byInitial);`,
         },
         {
           name: 'reduce',
-          code: `int sum = java.util.stream.IntStream.rangeClosed(1, 10)
+          code: `import java.util.List;
+import java.util.stream.IntStream;
+
+int sum = IntStream.rangeClosed(1, 10)
     .reduce(0, Integer::sum);
 System.out.println(sum);  // 55
 
-var concat = java.util.List.of("a", "b", "c").stream()
+var concat = List.of("a", "b", "c").stream()
     .reduce("", (a, b) -> a + b);
 System.out.println(concat);  // abc`,
         },
         {
           name: 'flatMap',
-          code: `var sentences = java.util.List.of("hello world", "foo bar");
+          code: `import java.util.Arrays;
+import java.util.List;
+
+var sentences = List.of("hello world", "foo bar");
 var allWords = sentences.stream()
-    .flatMap(s -> java.util.Arrays.stream(s.split(" ")))
+    .flatMap(s -> Arrays.stream(s.split(" ")))
     .toList();
 System.out.println(allWords);  // [hello, world, foo, bar]`,
         },
         {
           name: 'sorted / distinct / limit / skip',
-          code: `java.util.stream.IntStream.of(5, 3, 1, 4, 1, 2, 3)
+          code: `import java.util.stream.IntStream;
+
+IntStream.of(5, 3, 1, 4, 1, 2, 3)
     .distinct()
     .sorted()
     .limit(4)
@@ -645,27 +687,34 @@ System.out.println(allWords);  // [hello, world, foo, bar]`,
         },
         {
           name: 'anyMatch / allMatch / noneMatch',
-          code: `var nums = java.util.List.of(2, 4, 6, 8);
+          code: `import java.util.List;
+
+var nums = List.of(2, 4, 6, 8);
 System.out.println(nums.stream().allMatch(n -> n % 2 == 0));  // true
 System.out.println(nums.stream().anyMatch(n -> n > 5));       // true
 System.out.println(nums.stream().noneMatch(n -> n < 0));      // true`,
         },
         {
           name: 'Collectors.joining / counting / summarizing',
-          code: `var words = java.util.List.of("Java", "Stream", "API");
+          code: `import java.util.List;
+import java.util.stream.Collectors;
+
+var words = List.of("Java", "Stream", "API");
 
 // joining: 구분자, 접두사, 접미사 지정
 String joined = words.stream()
-    .collect(java.util.stream.Collectors.joining(", ", "[", "]"));
+    .collect(Collectors.joining(", ", "[", "]"));
 System.out.println(joined);  // [Java, Stream, API]
 
 long count = words.stream()
-    .collect(java.util.stream.Collectors.counting());
+    .collect(Collectors.counting());
 System.out.println(count);   // 3`,
         },
         {
           name: 'Optional',
-          code: `var opt = java.util.List.of(3, 7, 2, 9, 1).stream()
+          code: `import java.util.List;
+
+var opt = List.of(3, 7, 2, 9, 1).stream()
     .filter(n -> n > 5)
     .findFirst();           // Optional<Integer> 반환
 
@@ -675,7 +724,9 @@ int val2 = opt.orElseGet(() -> 0);          // 없으면 공급자 호출`,
         },
         {
           name: '병렬 스트림',
-          code: `long sum = java.util.stream.LongStream
+          code: `import java.util.stream.LongStream;
+
+long sum = LongStream
     .rangeClosed(1, 1_000_000)
     .parallel()
     .sum();
@@ -688,24 +739,29 @@ System.out.println(sum);`,
       items: [
         {
           name: '파일 읽기 (Files.readString)',
-          code: `// Files.readString: Java 11+, 파일 전체를 문자열로 읽기
-java.nio.file.Path path = java.nio.file.Path.of("data.txt");
-String content = java.nio.file.Files.readString(path);
+          code: `import java.nio.file.*;
+
+// Files.readString: Java 11+, 파일 전체를 문자열로 읽기
+Path path = Path.of("data.txt");
+String content = Files.readString(path);
 System.out.println(content);`,
         },
         {
           name: '파일 쓰기 (Files.writeString)',
-          code: `java.nio.file.Path path = java.nio.file.Path.of("output.txt");
-java.nio.file.Files.writeString(path, "Hello, file!");
+          code: `import java.nio.file.*;
+
+Path path = Path.of("output.txt");
+Files.writeString(path, "Hello, file!");
 
 // 추가 모드: APPEND 옵션으로 기존 내용 뒤에 붙이기
-java.nio.file.Files.writeString(path, "\nSecond line",
-    java.nio.file.StandardOpenOption.APPEND);`,
+Files.writeString(path, "\nSecond line", StandardOpenOption.APPEND);`,
         },
         {
           name: '라인 단위 읽기 (Files.lines)',
-          code: `// try-with-resources: 스트림을 자동으로 닫아 메모리 누수 방지
-try (var lines = java.nio.file.Files.lines(java.nio.file.Path.of("data.txt"))) {
+          code: `import java.nio.file.*;
+
+// try-with-resources: 스트림을 자동으로 닫아 메모리 누수 방지
+try (var lines = Files.lines(Path.of("data.txt"))) {
     lines.filter(l -> !l.isBlank())
          .map(String::trim)
          .forEach(System.out::println);
@@ -713,17 +769,21 @@ try (var lines = java.nio.file.Files.lines(java.nio.file.Path.of("data.txt"))) {
         },
         {
           name: '디렉터리 목록 (Files.list)',
-          code: `try (var entries = java.nio.file.Files.list(java.nio.file.Path.of("."))) {
-    entries.filter(java.nio.file.Files::isRegularFile)
-           .map(java.nio.file.Path::getFileName)
+          code: `import java.nio.file.*;
+
+try (var entries = Files.list(Path.of("."))) {
+    entries.filter(Files::isRegularFile)
+           .map(Path::getFileName)
            .forEach(System.out::println);
 }`,
         },
         {
           name: 'BufferedReader / BufferedWriter',
-          code: `// Files.newBufferedReader/Writer: NIO 기반 편리한 팩토리 메서드
-try (var br = java.nio.file.Files.newBufferedReader(java.nio.file.Path.of("in.txt"));
-     var bw = java.nio.file.Files.newBufferedWriter(java.nio.file.Path.of("out.txt"))) {
+          code: `import java.nio.file.*;
+
+// Files.newBufferedReader/Writer: NIO 기반 편리한 팩토리 메서드
+try (var br = Files.newBufferedReader(Path.of("in.txt"));
+     var bw = Files.newBufferedWriter(Path.of("out.txt"))) {
     String line;
     while ((line = br.readLine()) != null) {
         bw.write(line.toUpperCase());
@@ -733,34 +793,38 @@ try (var br = java.nio.file.Files.newBufferedReader(java.nio.file.Path.of("in.tx
         },
         {
           name: 'Path 조작',
-          code: `java.nio.file.Path p = java.nio.file.Path.of("/home/user/docs/report.pdf");
+          code: `import java.nio.file.*;
+
+Path p = Path.of("/home/user/docs/report.pdf");
 System.out.println(p.getFileName());   // report.pdf
 System.out.println(p.getParent());     // /home/user/docs
 System.out.println(p.getRoot());       // /
 
 // resolve: 경로 합치기, relativize: 상대 경로 계산
-java.nio.file.Path resolved = java.nio.file.Path.of("/tmp").resolve("sub/file.txt");
-java.nio.file.Path relative = java.nio.file.Path.of("/a/b")
-    .relativize(java.nio.file.Path.of("/a/b/c/d"));`,
+Path resolved = Path.of("/tmp").resolve("sub/file.txt");
+Path relative = Path.of("/a/b").relativize(Path.of("/a/b/c/d"));`,
         },
         {
           name: '임시 파일 / 파일 복사 삭제',
-          code: `java.nio.file.Path tmp = java.nio.file.Files.createTempFile("prefix-", ".txt");
-java.nio.file.Files.writeString(tmp, "temp content");
+          code: `import java.nio.file.*;
 
-java.nio.file.Path copy = tmp.resolveSibling("copy.txt");
+Path tmp = Files.createTempFile("prefix-", ".txt");
+Files.writeString(tmp, "temp content");
+
+Path copy = tmp.resolveSibling("copy.txt");
 // REPLACE_EXISTING: 대상 파일이 이미 있으면 덮어쓰기
-java.nio.file.Files.copy(tmp, copy,
-    java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+Files.copy(tmp, copy, StandardCopyOption.REPLACE_EXISTING);
 
-java.nio.file.Files.delete(tmp);
-System.out.println(java.nio.file.Files.exists(tmp));  // false`,
+Files.delete(tmp);
+System.out.println(Files.exists(tmp));  // false`,
         },
         {
           name: 'Properties 파일 읽기',
-          code: `var props = new java.util.Properties();
-try (var is = java.nio.file.Files.newInputStream(
-        java.nio.file.Path.of("app.properties"))) {
+          code: `import java.nio.file.*;
+import java.util.Properties;
+
+var props = new Properties();
+try (var is = Files.newInputStream(Path.of("app.properties"))) {
     props.load(is);
 }
 // getProperty(key, defaultValue): 없으면 기본값 반환
@@ -774,91 +838,104 @@ int port = Integer.parseInt(props.getProperty("port", "8080"));`,
       items: [
         {
           name: '현재 날짜/시간',
-          code: `// java.time: Java 8+ 날짜/시간 API (불변 객체)
-java.time.LocalDate date = java.time.LocalDate.now();
-java.time.LocalTime time = java.time.LocalTime.now();
-java.time.LocalDateTime dt = java.time.LocalDateTime.now();
+          code: `import java.time.*;
+
+// java.time: Java 8+ 날짜/시간 API (불변 객체)
+LocalDate date = LocalDate.now();
+LocalTime time = LocalTime.now();
+LocalDateTime dt = LocalDateTime.now();
 // ZonedDateTime: 타임존 포함 날짜/시간
-java.time.ZonedDateTime zdt = java.time.ZonedDateTime.now(
-    java.time.ZoneId.of("Asia/Seoul"));
+ZonedDateTime zdt = ZonedDateTime.now(ZoneId.of("Asia/Seoul"));
 
 System.out.println(date);  // 예: 2024-06-20
 System.out.println(time);  // 예: 14:30:00.123`,
         },
         {
           name: '날짜 생성 및 조작',
-          code: `// LocalDate는 불변 — plus/minus/with 메서드는 새 객체 반환
-java.time.LocalDate d = java.time.LocalDate.of(2024, 1, 1);
-java.time.LocalDate nextWeek  = d.plusWeeks(1);
-java.time.LocalDate lastMonth = d.minusMonths(1);
-java.time.LocalDate firstDay  = d.withDayOfMonth(1);
+          code: `import java.time.LocalDate;
+
+// LocalDate는 불변 — plus/minus/with 메서드는 새 객체 반환
+LocalDate d = LocalDate.of(2024, 1, 1);
+LocalDate nextWeek  = d.plusWeeks(1);
+LocalDate lastMonth = d.minusMonths(1);
+LocalDate firstDay  = d.withDayOfMonth(1);
 int daysInMonth = d.lengthOfMonth();
 System.out.println(d.getDayOfWeek());  // MONDAY`,
         },
         {
           name: '날짜 비교',
-          code: `java.time.LocalDate a = java.time.LocalDate.of(2024, 3, 15);
-java.time.LocalDate b = java.time.LocalDate.of(2024, 6, 20);
+          code: `import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
+
+LocalDate a = LocalDate.of(2024, 3, 15);
+LocalDate b = LocalDate.of(2024, 6, 20);
 
 System.out.println(a.isBefore(b));  // true
 System.out.println(a.isAfter(b));   // false
 
 // ChronoUnit.DAYS.between: 두 날짜 사이의 일수
-long days = java.time.temporal.ChronoUnit.DAYS.between(a, b);
+long days = ChronoUnit.DAYS.between(a, b);
 System.out.println(days);  // 97`,
         },
         {
           name: 'DateTimeFormatter',
-          code: `java.time.LocalDateTime dt = java.time.LocalDateTime.of(2024, 6, 20, 14, 30);
+          code: `import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+
+LocalDateTime dt = LocalDateTime.of(2024, 6, 20, 14, 30);
 // ofPattern: 사용자 정의 포맷 (yyyy=연, MM=월, dd=일, HH=24시, mm=분)
-java.time.format.DateTimeFormatter fmt =
-    java.time.format.DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm");
+DateTimeFormatter fmt = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm");
 String s = dt.format(fmt);
 System.out.println(s);  // 2024/06/20 14:30
 
-java.time.LocalDateTime parsed = java.time.LocalDateTime.parse(s, fmt);`,
+LocalDateTime parsed = LocalDateTime.parse(s, fmt);`,
         },
         {
           name: 'Period / Duration',
-          code: `// Period: 날짜 차이 (년/월/일), Duration: 시간 차이 (시/분/초)
-java.time.Period p = java.time.Period.between(
-    java.time.LocalDate.of(2020, 1, 1), java.time.LocalDate.now());
+          code: `import java.time.*;
+
+// Period: 날짜 차이 (년/월/일), Duration: 시간 차이 (시/분/초)
+Period p = Period.between(LocalDate.of(2020, 1, 1), LocalDate.now());
 System.out.println(p.getYears() + "년 " + p.getMonths() + "개월");
 
-java.time.Duration d = java.time.Duration.between(
-    java.time.LocalTime.of(9, 0), java.time.LocalTime.of(17, 30));
+Duration d = Duration.between(LocalTime.of(9, 0), LocalTime.of(17, 30));
 System.out.println(d.toHours() + "시간 " + d.toMinutesPart() + "분");`,
         },
         {
           name: 'Instant & 타임존 변환',
-          code: `// Instant: UTC 기준 타임스탬프 (에포크 시간)
-java.time.Instant now = java.time.Instant.now();
+          code: `import java.time.*;
+
+// Instant: UTC 기준 타임스탬프 (에포크 시간)
+Instant now = Instant.now();
 System.out.println(now.toEpochMilli());
 
-java.time.ZonedDateTime seoulTime = now.atZone(java.time.ZoneId.of("Asia/Seoul"));
+ZonedDateTime seoulTime = now.atZone(ZoneId.of("Asia/Seoul"));
 // withZoneSameInstant: 같은 순간을 다른 타임존으로 변환
-java.time.ZonedDateTime nyTime =
-    seoulTime.withZoneSameInstant(java.time.ZoneId.of("America/New_York"));
+ZonedDateTime nyTime = seoulTime.withZoneSameInstant(ZoneId.of("America/New_York"));
 System.out.println(nyTime);`,
         },
         {
           name: 'YearMonth / MonthDay',
-          code: `java.time.YearMonth ym = java.time.YearMonth.of(2024, 2);
+          code: `import java.time.*;
+
+YearMonth ym = YearMonth.of(2024, 2);
 System.out.println(ym.lengthOfMonth());  // 29 (윤년)
 System.out.println(ym.isLeapYear());     // true
 
 // MonthDay: 연도 없는 날짜 (생일 등 매년 반복되는 날)
-java.time.MonthDay birthday = java.time.MonthDay.of(6, 20);
+MonthDay birthday = MonthDay.of(6, 20);
 System.out.println(birthday.atYear(2024));  // 2024-06-20`,
         },
         {
           name: 'Clock (테스트용 고정 시계)',
-          code: `// Clock.fixed: 항상 같은 시각 반환 → 테스트에서 시간 고정에 사용
-java.time.Clock fixed = java.time.Clock.fixed(
-    java.time.Instant.parse("2024-01-01T00:00:00Z"),
-    java.time.ZoneOffset.UTC);
+          code: `import java.time.*;
 
-java.time.LocalDate d = java.time.LocalDate.now(fixed);
+// Clock.fixed: 항상 같은 시각 반환 → 테스트에서 시간 고정에 사용
+Clock fixed = Clock.fixed(
+    Instant.parse("2024-01-01T00:00:00Z"),
+    ZoneOffset.UTC);
+
+LocalDate d = LocalDate.now(fixed);
 System.out.println(d);  // 2024-01-01`,
         },
       ],
@@ -891,12 +968,14 @@ try {
         },
         {
           name: 'try-with-resources',
-          code: `// try-with-resources: AutoCloseable 자원을 자동 닫기 (Java 7+)
-try (var is = new java.io.FileInputStream("data.bin");
-     var bis = new java.io.BufferedInputStream(is)) {
+          code: `import java.io.*;
+
+// try-with-resources: AutoCloseable 자원을 자동 닫기 (Java 7+)
+try (var is = new FileInputStream("data.bin");
+     var bis = new BufferedInputStream(is)) {
     byte[] buf = bis.readAllBytes();
     System.out.println("읽음: " + buf.length + " bytes");
-} catch (java.io.IOException e) {
+} catch (IOException e) {
     e.printStackTrace();
 }`,
         },
@@ -918,10 +997,13 @@ static void findResource(int id) {
         },
         {
           name: '예외 연쇄 (Chaining)',
-          code: `// 저수준 예외를 원인(cause)으로 포함해 고수준 예외로 감싸기
+          code: `import java.io.IOException;
+import java.nio.file.*;
+
+// 저수준 예외를 원인(cause)으로 포함해 고수준 예외로 감싸기
 try {
-    java.nio.file.Files.readString(java.nio.file.Path.of("missing.txt"));
-} catch (java.io.IOException cause) {
+    Files.readString(Path.of("missing.txt"));
+} catch (IOException cause) {
     throw new RuntimeException("설정 파일 로드 실패", cause);
 }`,
         },
@@ -939,9 +1021,12 @@ static int safeParseInt(String s, int fallback) {
         },
         {
           name: 'Checked vs Unchecked',
-          code: `// Checked: 컴파일러가 처리 강제 (IOException 등)
-static void readFile(String path) throws java.io.IOException {
-    java.nio.file.Files.readString(java.nio.file.Path.of(path));
+          code: `import java.io.IOException;
+import java.nio.file.*;
+
+// Checked: 컴파일러가 처리 강제 (IOException 등)
+static void readFile(String path) throws IOException {
+    Files.readString(Path.of(path));
 }
 
 // Unchecked (RuntimeException 하위): 처리 선택 사항
@@ -951,12 +1036,14 @@ static void validate(String s) {
         },
         {
           name: 'Result 패턴 (Optional 활용)',
-          code: `// 예외 대신 Optional로 실패를 표현하는 패턴
-static java.util.Optional<Integer> safeParse(String s) {
+          code: `import java.util.Optional;
+
+// 예외 대신 Optional로 실패를 표현하는 패턴
+static Optional<Integer> safeParse(String s) {
     try {
-        return java.util.Optional.of(Integer.parseInt(s));
+        return Optional.of(Integer.parseInt(s));
     } catch (NumberFormatException e) {
-        return java.util.Optional.empty();
+        return Optional.empty();
     }
 }
 
@@ -987,8 +1074,10 @@ try {
         },
         {
           name: 'ExecutorService',
-          code: `// 스레드 풀: 4개 스레드로 8개 작업 처리
-var executor = java.util.concurrent.Executors.newFixedThreadPool(4);
+          code: `import java.util.concurrent.*;
+
+// 스레드 풀: 4개 스레드로 8개 작업 처리
+var executor = Executors.newFixedThreadPool(4);
 for (int i = 0; i < 8; i++) {
     final int id = i;
     executor.submit(() -> System.out.println("task " + id));
@@ -996,7 +1085,7 @@ for (int i = 0; i < 8; i++) {
 executor.shutdown();
 try {
     // 최대 5초 대기; false 반환 시 타임아웃 초과
-    boolean done = executor.awaitTermination(5, java.util.concurrent.TimeUnit.SECONDS);
+    boolean done = executor.awaitTermination(5, TimeUnit.SECONDS);
     if (!done) System.err.println("작업이 제한 시간 내에 완료되지 않았습니다");
 } catch (InterruptedException e) {
     Thread.currentThread().interrupt();
@@ -1004,11 +1093,13 @@ try {
         },
         {
           name: 'CompletableFuture',
-          code: `// 비동기 파이프라인: 공급 → 변환 → 소비 → 예외 처리
+          code: `import java.util.concurrent.CompletableFuture;
+
+// 비동기 파이프라인: 공급 → 변환 → 소비 → 예외 처리
 static String fetchData()       { return "raw"; }
 static String process(String s) { return s.toUpperCase(); }
 
-java.util.concurrent.CompletableFuture
+CompletableFuture
     .supplyAsync(() -> fetchData())       // 별도 스레드에서 실행
     .thenApply(data -> process(data))     // 결과 변환
     .thenAccept(result -> System.out.println("결과: " + result))
@@ -1016,9 +1107,11 @@ java.util.concurrent.CompletableFuture
         },
         {
           name: 'CompletableFuture 조합',
-          code: `// thenCombine: 두 비동기 작업이 모두 완료되면 결합
-var f1 = java.util.concurrent.CompletableFuture.supplyAsync(() -> "Hello");
-var f2 = java.util.concurrent.CompletableFuture.supplyAsync(() -> "World");
+          code: `import java.util.concurrent.CompletableFuture;
+
+// thenCombine: 두 비동기 작업이 모두 완료되면 결합
+var f1 = CompletableFuture.supplyAsync(() -> "Hello");
+var f2 = CompletableFuture.supplyAsync(() -> "World");
 
 var combined = f1.thenCombine(f2, (a, b) -> a + " " + b);
 System.out.println(combined.join());  // Hello World`,
@@ -1035,8 +1128,10 @@ System.out.println(combined.join());  // Hello World`,
         },
         {
           name: 'AtomicInteger',
-          code: `// AtomicInteger: lock 없이 스레드 안전한 정수 연산
-var counter = new java.util.concurrent.atomic.AtomicInteger(0);
+          code: `import java.util.concurrent.atomic.AtomicInteger;
+
+// AtomicInteger: lock 없이 스레드 안전한 정수 연산
+var counter = new AtomicInteger(0);
 int prev = counter.getAndIncrement();   // 증가 전 값 반환
 int next = counter.incrementAndGet();   // 증가 후 값 반환
 // CAS(Compare-And-Swap): next와 같으면 0으로 변경
@@ -1044,9 +1139,11 @@ boolean updated = counter.compareAndSet(next, 0);`,
         },
         {
           name: '가상 스레드 (Virtual Thread)',
-          code: `// 가상 스레드: Java 21 정식 기능 (JEP 444)
+          code: `import java.util.concurrent.Executors;
+
+// 가상 스레드: Java 21 정식 기능 (JEP 444)
 // 수천~수백만 개를 가볍게 생성 가능; I/O 블로킹에 유리
-try (var executor = java.util.concurrent.Executors.newVirtualThreadPerTaskExecutor()) {
+try (var executor = Executors.newVirtualThreadPerTaskExecutor()) {
     for (int i = 0; i < 1000; i++) {
         final int id = i;
         // Callable 람다: checked 예외(InterruptedException) 선언 허용
@@ -1060,8 +1157,10 @@ try (var executor = java.util.concurrent.Executors.newVirtualThreadPerTaskExecut
         },
         {
           name: 'ReentrantLock',
-          code: `// ReentrantLock: synchronized보다 세밀한 잠금 제어
-var lock = new java.util.concurrent.locks.ReentrantLock();
+          code: `import java.util.concurrent.locks.ReentrantLock;
+
+// ReentrantLock: synchronized보다 세밀한 잠금 제어
+var lock = new ReentrantLock();
 lock.lock();
 try {
     // 임계 구역: 한 번에 하나의 스레드만 진입
@@ -1077,7 +1176,9 @@ try {
       items: [
         {
           name: '람다 & 메서드 참조',
-          code: `var list = new java.util.ArrayList<>(java.util.List.of("banana", "apple", "cherry"));
+          code: `import java.util.*;
+
+var list = new ArrayList<>(List.of("banana", "apple", "cherry"));
 
 // 람다: 익명 함수
 list.sort((a, b) -> a.compareTo(b));
@@ -1088,54 +1189,64 @@ list.forEach(System.out::println);`,
         },
         {
           name: '불변 리스트 → 가변 변환',
-          code: `var immutable = java.util.List.of(3, 1, 4, 1, 5);
+          code: `import java.util.*;
+
+var immutable = List.of(3, 1, 4, 1, 5);
 
 // 가변 복사본
-var mutable = new java.util.ArrayList<>(immutable);
-java.util.Collections.sort(mutable);
+var mutable = new ArrayList<>(immutable);
+Collections.sort(mutable);
 System.out.println(mutable);  // [1, 1, 3, 4, 5]`,
         },
         {
           name: '빈도 집계 (groupingBy counting)',
-          code: `var words = java.util.List.of("apple", "banana", "apple", "cherry", "banana", "apple");
+          code: `import java.util.*;
+import java.util.stream.Collectors;
+
+var words = List.of("apple", "banana", "apple", "cherry", "banana", "apple");
 // groupingBy + counting: 단어별 등장 횟수 집계
 var freq = words.stream()
-    .collect(java.util.stream.Collectors.groupingBy(
-        w -> w, java.util.stream.Collectors.counting()));
+    .collect(Collectors.groupingBy(w -> w, Collectors.counting()));
 freq.entrySet().stream()
-    .sorted(java.util.Map.Entry.<String, Long>comparingByValue().reversed())
+    .sorted(Map.Entry.<String, Long>comparingByValue().reversed())
     .forEach(e -> System.out.println(e.getKey() + ": " + e.getValue()));`,
         },
         {
           name: '딥 카피 패턴 (레코드)',
-          code: `record Config(String host, int port, java.util.List<String> tags) {
+          code: `import java.util.List;
+
+record Config(String host, int port, List<String> tags) {
     Config withPort(int newPort) {
-        return new Config(host, newPort, java.util.List.copyOf(tags));
+        return new Config(host, newPort, List.copyOf(tags));
     }
 }
 
-var cfg = new Config("localhost", 8080, java.util.List.of("dev", "local"));
+var cfg = new Config("localhost", 8080, List.of("dev", "local"));
 var updated = cfg.withPort(9090);`,
         },
         {
           name: '전략 패턴 (Strategy)',
-          code: `@FunctionalInterface
+          code: `import java.util.*;
+
+@FunctionalInterface
 interface SortStrategy<T> {
-    java.util.List<T> sort(java.util.List<T> items);
+    List<T> sort(List<T> items);
 }
 
 SortStrategy<Integer> ascending  = list -> list.stream().sorted().toList();
-SortStrategy<Integer> descending = list -> list.stream().sorted(java.util.Comparator.reverseOrder()).toList();
+SortStrategy<Integer> descending = list -> list.stream().sorted(Comparator.reverseOrder()).toList();
 
-var nums = java.util.List.of(3, 1, 4, 1, 5);
+var nums = List.of(3, 1, 4, 1, 5);
 System.out.println(ascending.sort(nums));`,
         },
         {
           name: '옵저버 패턴',
-          code: `interface Observer { void update(String event); }
+          code: `import java.util.*;
+
+interface Observer { void update(String event); }
 
 class EventBus {
-    private final java.util.List<Observer> listeners = new java.util.ArrayList<>();
+    private final List<Observer> listeners = new ArrayList<>();
     void subscribe(Observer o) { listeners.add(o); }
     void publish(String event) { listeners.forEach(o -> o.update(event)); }
 }
@@ -1146,8 +1257,10 @@ bus.publish("click");`,
         },
         {
           name: '재귀 + 메모이제이션',
-          code: `// computeIfAbsent 내에서 재귀 호출 시 NPE 위험 → 직접 put 사용
-static java.util.Map<Integer, Long> memo = new java.util.HashMap<>();
+          code: `import java.util.*;
+
+// computeIfAbsent 내에서 재귀 호출 시 NPE 위험 → 직접 put 사용
+static Map<Integer, Long> memo = new HashMap<>();
 
 static long fib(int n) {
     if (n <= 1) return n;
@@ -1163,31 +1276,38 @@ static long fib(int n) {
         },
         {
           name: 'DTO → Map 변환 (Stream)',
-          code: `record User(String name, int age, String role) {}
+          code: `import java.util.*;
+import java.util.stream.Collectors;
 
-var users = java.util.List.of(
+record User(String name, int age, String role) {}
+
+var users = List.of(
     new User("Alice", 30, "admin"),
     new User("Bob",   25, "user"));
 
 var byRole = users.stream()
-    .collect(java.util.stream.Collectors.groupingBy(User::role));
+    .collect(Collectors.groupingBy(User::role));
 byRole.forEach((role, list) -> System.out.println(role + ": " + list));`,
         },
         {
           name: '단순 HTTP GET (Java 11+)',
-          code: `var client = java.net.http.HttpClient.newHttpClient();
-var request = java.net.http.HttpRequest.newBuilder()
-    .uri(java.net.URI.create("https://api.example.com/data"))
+          code: `import java.io.IOException;
+import java.net.URI;
+import java.net.http.*;
+
+var client = HttpClient.newHttpClient();
+var request = HttpRequest.newBuilder()
+    .uri(URI.create("https://api.example.com/data"))
     .GET()
     .build();
 
 // send()는 IOException, InterruptedException(checked) 발생 가능
 try {
-    java.net.http.HttpResponse<String> resp = client.send(
-        request, java.net.http.HttpResponse.BodyHandlers.ofString());
+    HttpResponse<String> resp = client.send(
+        request, HttpResponse.BodyHandlers.ofString());
     System.out.println(resp.statusCode());
     System.out.println(resp.body());
-} catch (java.io.IOException | InterruptedException e) {
+} catch (IOException | InterruptedException e) {
     e.printStackTrace();
 }`,
         },

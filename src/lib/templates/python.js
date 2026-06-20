@@ -364,12 +364,13 @@ print(a | b)  # 합집합
 print(a & b)  # 교집합
 print(a - b)  # 차집합
 print(a ^ b)  # 대칭 차집합` },
-        { name: '튜플', code: `point = (3, 4)
+        { name: '튜플', code: `from collections import namedtuple
+
+point = (3, 4)
 x, y = point
 print(f"x={x}, y={y}")
 
 # named tuple
-from collections import namedtuple
 Color = namedtuple("Color", ["r", "g", "b"])
 red = Color(255, 0, 0)
 print(red.r, red.g, red.b)` },
@@ -547,10 +548,10 @@ try:
     load("nonexistent.txt")
 except RuntimeError as e:
     print(e)` },
-        { name: 'contextlib suppress', code: `from contextlib import suppress
+        { name: 'contextlib suppress', code: `import os
+from contextlib import suppress
 
 with suppress(FileNotFoundError):
-    import os
     os.remove("nonexistent.txt")
 print("오류 없이 계속 실행")` },
         { name: 'warnings', code: `import warnings
@@ -702,13 +703,13 @@ merged2 = a | b          # 3.9+
 print(merged)
 print(merged2)` },
         { name: '이터레이터 도구', code: `import itertools
+from itertools import combinations
 
 # 무한 카운터
 counter = itertools.count(10, 2)
 print([next(counter) for _ in range(5)])
 
 # 조합
-from itertools import combinations
 print(list(combinations("ABC", 2)))` },
         { name: 'functools.lru_cache', code: `from functools import lru_cache
 
@@ -720,11 +721,11 @@ def fib(n):
 
 print([fib(i) for i in range(10)])
 print(fib.cache_info())` },
-        { name: '컨텍스트 매니저 직접 구현', code: `from contextlib import contextmanager
+        { name: '컨텍스트 매니저 직접 구현', code: `import time
+from contextlib import contextmanager
 
 @contextmanager
 def timer(label=""):
-    import time
     start = time.perf_counter()
     try:
         yield

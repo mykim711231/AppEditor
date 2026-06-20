@@ -18,7 +18,9 @@ func main() {
         },
         {
           name: '변수 선언',
-          code: `// 명시적 타입
+          code: `import "fmt"
+
+// 명시적 타입
 var name string = "Go"
 var count int = 42
 
@@ -48,7 +50,9 @@ const (
         },
         {
           name: '기본 타입',
-          code: `var i int = 10
+          code: `import "fmt"
+
+var i int = 10
 var f float64 = 3.14
 var b bool = true
 var s string = "hello"
@@ -62,7 +66,9 @@ fmt.Println(i, f, b, s, r, by, f2, i2)`,
         },
         {
           name: '포인터',
-          code: `x := 42
+          code: `import "fmt"
+
+x := 42
 p := &x         // &: 주소 연산자 → 포인터 취득
 fmt.Println(*p) // *: 역참조(dereference) → 42
 
@@ -76,7 +82,9 @@ fmt.Println(*q)`,
         },
         {
           name: 'fmt 출력 형식',
-          code: `name := "Gopher"
+          code: `import "fmt"
+
+name := "Gopher"
 age := 3
 
 fmt.Printf("이름: %s, 나이: %d\\n", name, age)
@@ -88,7 +96,9 @@ fmt.Println(s)`,
         },
         {
           name: '제로값',
-          code: `var i int       // 0
+          code: `import "fmt"
+
+var i int       // 0
 var f float64   // 0.0
 var b bool      // false
 var s string    // ""
@@ -100,7 +110,9 @@ fmt.Println(i, f, b, s, p, sl, m)`,
         },
         {
           name: '멀티 반환값',
-          code: `func divide(a, b float64) (float64, error) {
+          code: `import "fmt"
+
+func divide(a, b float64) (float64, error) {
     if b == 0 {
         return 0, fmt.Errorf("division by zero")
     }
@@ -123,7 +135,9 @@ func main() {
       items: [
         {
           name: 'if / else if / else',
-          code: `score := 75
+          code: `import "fmt"
+
+score := 75
 
 if score >= 90 {
     fmt.Println("A")
@@ -137,7 +151,12 @@ if score >= 90 {
         },
         {
           name: 'if 초기화문',
-          code: `if v, err := strconv.Atoi("42"); err == nil {
+          code: `import (
+    "fmt"
+    "strconv"
+)
+
+if v, err := strconv.Atoi("42"); err == nil {
     fmt.Println("parsed:", v)
 } else {
     fmt.Println("error:", err)
@@ -146,7 +165,9 @@ if score >= 90 {
         },
         {
           name: 'for 기본 / while 형태',
-          code: `// C 스타일
+          code: `import "fmt"
+
+// C 스타일
 for i := 0; i < 5; i++ {
     fmt.Print(i, " ")
 }
@@ -165,7 +186,9 @@ for {
         },
         {
           name: 'range (슬라이스/맵)',
-          code: `nums := []int{10, 20, 30}
+          code: `import "fmt"
+
+nums := []int{10, 20, 30}
 for i, v := range nums {
     fmt.Printf("[%d]=%d\\n", i, v)
 }
@@ -182,7 +205,9 @@ for i := range nums {
         },
         {
           name: 'range over int (Go 1.22)',
-          code: `// Go 1.22: 정수에 직접 range
+          code: `import "fmt"
+
+// Go 1.22: 정수에 직접 range
 for i := range 5 {
     fmt.Print(i, " ") // 0 1 2 3 4
 }
@@ -197,7 +222,9 @@ for i := range 10 {
         },
         {
           name: 'switch',
-          code: `day := "Mon"
+          code: `import "fmt"
+
+day := "Mon"
 
 switch day {
 case "Mon", "Tue", "Wed", "Thu", "Fri":
@@ -221,7 +248,9 @@ default:
         },
         {
           name: 'break / continue / label',
-          code: `outer:
+          code: `import "fmt"
+
+outer:
 for i := 0; i < 3; i++ {
     for j := 0; j < 3; j++ {
         if i == 1 && j == 1 {
@@ -240,7 +269,9 @@ for i := range 10 {
         },
         {
           name: 'defer',
-          code: `func main() {
+          code: `import "fmt"
+
+func main() {
     defer fmt.Println("마지막 실행") // 함수 종료 시 호출
 
     for i := range 3 {
@@ -251,7 +282,9 @@ for i := range 10 {
         },
         {
           name: 'defer + recover (패닉 복구)',
-          code: `func safeDiv(a, b int) (result int, err error) {
+          code: `import "fmt"
+
+func safeDiv(a, b int) (result int, err error) {
     defer func() {
         if r := recover(); r != nil {
             err = fmt.Errorf("recovered: %v", r)
@@ -272,7 +305,9 @@ func main() {
       items: [
         {
           name: '기본 함수',
-          code: `func add(a, b int) int {
+          code: `import "fmt"
+
+func add(a, b int) int {
     return a + b
 }
 
@@ -301,7 +336,9 @@ func main() {
         },
         {
           name: '가변 인자 (variadic)',
-          code: `func sum(nums ...int) int {
+          code: `import "fmt"
+
+func sum(nums ...int) int {
     total := 0
     for _, n := range nums {
         total += n
@@ -317,7 +354,9 @@ func main() {
         },
         {
           name: '일급 함수 / 함수 타입',
-          code: `func apply(nums []int, f func(int) int) []int {
+          code: `import "fmt"
+
+func apply(nums []int, f func(int) int) []int {
     result := make([]int, len(nums))
     for i, v := range nums {
         result[i] = f(v)
@@ -332,7 +371,9 @@ func main() {
         },
         {
           name: '클로저',
-          code: `func counter(start int) func() int {
+          code: `import "fmt"
+
+func counter(start int) func() int {
     n := start // 클로저가 캡처하는 변수 (호출 간 상태 유지)
     return func() int {
         v := n
@@ -348,7 +389,9 @@ func main() {
         },
         {
           name: '즉시 실행 함수 (IIFE)',
-          code: `result := func(x, y int) int {
+          code: `import "fmt"
+
+result := func(x, y int) int {
     return x + y
 }(3, 7)
 
@@ -360,7 +403,8 @@ config := func() map[string]string {
     m["env"] = "production"
     m["port"] = "8080"
     return m
-}()`,
+}()
+_ = config`,
         },
         {
           name: '함수형 옵션 패턴',
@@ -384,7 +428,9 @@ func NewServer(opts ...Option) *Server {
         },
         {
           name: 'init 함수',
-          code: `// init은 패키지 로드 시 자동 실행; main 이전, import 순서대로
+          code: `import "fmt"
+
+// init은 패키지 로드 시 자동 실행; main 이전, import 순서대로
 var ready bool
 
 func init() {
@@ -403,7 +449,9 @@ func main() {
       items: [
         {
           name: '구조체 정의 및 생성',
-          code: `type Point struct {
+          code: `import "fmt"
+
+type Point struct {
     X, Y float64
 }
 
@@ -418,7 +466,12 @@ func main() {
         },
         {
           name: '메서드 (값/포인터 리시버)',
-          code: `type Circle struct {
+          code: `import (
+    "fmt"
+    "math"
+)
+
+type Circle struct {
     Radius float64
 }
 
@@ -441,7 +494,10 @@ func main() {
         },
         {
           name: '구조체 태그 (JSON)',
-          code: `import "encoding/json"
+          code: `import (
+    "encoding/json"
+    "fmt"
+)
 
 type User struct {
     ID       int    \`json:"id"\`              // JSON 키 이름 지정
@@ -459,7 +515,9 @@ func main() {
         },
         {
           name: '임베딩 (구성)',
-          code: `type Animal struct {
+          code: `import "fmt"
+
+type Animal struct {
     Name string
 }
 
@@ -480,7 +538,12 @@ func main() {
         },
         {
           name: '생성자 함수 (New 패턴)',
-          code: `type Config struct {
+          code: `import (
+    "fmt"
+    "time"
+)
+
+type Config struct {
     Host    string
     Port    int
     Timeout time.Duration
@@ -501,7 +564,9 @@ func main() {
         },
         {
           name: 'Stringer 인터페이스 구현',
-          code: `type Point struct {
+          code: `import "fmt"
+
+type Point struct {
     X, Y int
 }
 
@@ -517,7 +582,9 @@ func main() {
         },
         {
           name: '익명 구조체',
-          code: `// 임시 데이터 구조
+          code: `import "fmt"
+
+// 임시 데이터 구조
 person := struct {
     Name string
     Age  int
@@ -533,11 +600,14 @@ tests := []struct {
     {1, 1},
     {2, 4},
     {3, 9},
-}`,
+}
+_ = tests`,
         },
         {
           name: '메서드 표현식',
-          code: `type Adder struct{ Base int }
+          code: `import "fmt"
+
+type Adder struct{ Base int }
 
 func (a Adder) Add(x int) int { return a.Base + x }
 
@@ -560,7 +630,9 @@ func main() {
       items: [
         {
           name: '인터페이스 정의 및 구현',
-          code: `type Shape interface {
+          code: `import "fmt"
+
+type Shape interface {
     Area() float64
     Perimeter() float64
 }
@@ -580,7 +652,9 @@ func main() {
         },
         {
           name: '빈 인터페이스 / any',
-          code: `func describe(i any) {
+          code: `import "fmt"
+
+func describe(i any) {
     fmt.Printf("타입: %T, 값: %v\\n", i, i)
 }
 
@@ -593,7 +667,9 @@ func main() {
         },
         {
           name: '타입 어서션',
-          code: `var i any = "hello"
+          code: `import "fmt"
+
+var i any = "hello"
 
 // 안전한 어서션
 s, ok := i.(string)
@@ -607,7 +683,9 @@ fmt.Println(s2)`,
         },
         {
           name: '타입 스위치',
-          code: `func typeCheck(i any) string {
+          code: `import "fmt"
+
+func typeCheck(i any) string {
     switch v := i.(type) {
     case int:
         return fmt.Sprintf("정수: %d", v)
@@ -642,7 +720,9 @@ type ReadWriter interface {
         },
         {
           name: 'error 인터페이스',
-          code: `type ValidationError struct {
+          code: `import "fmt"
+
+type ValidationError struct {
     Field   string
     Message string
 }
@@ -660,7 +740,9 @@ func validate(name string) error {
         },
         {
           name: '인터페이스 nil 함정',
-          code: `type MyError struct{ msg string }
+          code: `import "fmt"
+
+type MyError struct{ msg string }
 func (e *MyError) Error() string { return e.msg }
 
 // 잘못된 패턴: 인터페이스에 담긴 nil 포인터
@@ -681,7 +763,12 @@ func main() {
         },
         {
           name: '함수형 인터페이스 (http.Handler)',
-          code: `type HandlerFunc func(w http.ResponseWriter, r *http.Request)
+          code: `import (
+    "fmt"
+    "net/http"
+)
+
+type HandlerFunc func(w http.ResponseWriter, r *http.Request)
 
 func (f HandlerFunc) ServeHTTP(w http.ResponseWriter, r *http.Request) {
     f(w, r)
@@ -701,7 +788,12 @@ var h http.Handler = http.HandlerFunc(hello)`,
       items: [
         {
           name: '에러 반환 기본',
-          code: `func openFile(path string) (*os.File, error) {
+          code: `import (
+    "log"
+    "os"
+)
+
+func openFile(path string) (*os.File, error) {
     f, err := os.Open(path)
     if err != nil {
         return nil, err
@@ -719,7 +811,13 @@ func main() {
         },
         {
           name: 'fmt.Errorf %w (에러 래핑)',
-          code: `func readConfig(path string) ([]byte, error) {
+          code: `import (
+    "errors"
+    "fmt"
+    "os"
+)
+
+func readConfig(path string) ([]byte, error) {
     data, err := os.ReadFile(path)
     if err != nil {
         return nil, fmt.Errorf("readConfig %q: %w", path, err)
@@ -736,7 +834,12 @@ func main() {
         },
         {
           name: 'errors.Is / errors.As',
-          code: `var ErrNotFound = errors.New("not found")
+          code: `import (
+    "errors"
+    "fmt"
+)
+
+var ErrNotFound = errors.New("not found")
 
 type DBError struct {
     Code int
@@ -758,7 +861,9 @@ func main() {
         },
         {
           name: '커스텀 에러 타입',
-          code: `type AppError struct {
+          code: `import "fmt"
+
+type AppError struct {
     Code    int
     Message string
     Err     error
@@ -775,7 +880,12 @@ func (e *AppError) Unwrap() error { return e.Err }`,
         },
         {
           name: 'sentinel 에러',
-          code: `var (
+          code: `import (
+    "errors"
+    "fmt"
+)
+
+var (
     ErrNotFound   = errors.New("not found")
     ErrPermission = errors.New("permission denied")
     ErrTimeout    = errors.New("timeout")
@@ -797,7 +907,12 @@ func main() {
         },
         {
           name: 'panic / recover',
-          code: `func mustParse(s string) int {
+          code: `import (
+    "fmt"
+    "strconv"
+)
+
+func mustParse(s string) int {
     v, err := strconv.Atoi(s)
     if err != nil {
         panic(fmt.Sprintf("mustParse: invalid int %q", s))
@@ -816,7 +931,12 @@ func safeMustParse(s string) (v int, err error) {
         },
         {
           name: '에러 체인 순회',
-          code: `func main() {
+          code: `import (
+    "errors"
+    "fmt"
+)
+
+func main() {
     err1 := errors.New("root cause")
     err2 := fmt.Errorf("layer 2: %w", err1)
     err3 := fmt.Errorf("layer 3: %w", err2)
@@ -879,7 +999,9 @@ func main() {
         },
         {
           name: 'channel 기본',
-          code: `func sum(nums []int, ch chan<- int) {
+          code: `import "fmt"
+
+func sum(nums []int, ch chan<- int) {
     total := 0
     for _, v := range nums {
         total += v
@@ -900,7 +1022,9 @@ func main() {
         },
         {
           name: 'buffered channel',
-          code: `ch := make(chan int, 3) // 버퍼 크기 3: 수신자 없이도 3개까지 전송 가능
+          code: `import "fmt"
+
+ch := make(chan int, 3) // 버퍼 크기 3: 수신자 없이도 3개까지 전송 가능
 
 ch <- 1
 ch <- 2
@@ -918,7 +1042,12 @@ for v := range ch {
         },
         {
           name: 'select',
-          code: `func main() {
+          code: `import (
+    "fmt"
+    "time"
+)
+
+func main() {
     ch1 := make(chan string)
     ch2 := make(chan string)
 
@@ -937,7 +1066,13 @@ for v := range ch {
         },
         {
           name: 'context 취소',
-          code: `func doWork(ctx context.Context) error {
+          code: `import (
+    "context"
+    "fmt"
+    "time"
+)
+
+func doWork(ctx context.Context) error {
     for {
         select {
         case <-ctx.Done():
@@ -958,7 +1093,9 @@ func main() {
         },
         {
           name: 'sync.Mutex',
-          code: `type SafeCounter struct {
+          code: `import "sync"
+
+type SafeCounter struct {
     mu sync.Mutex    // 뮤텍스: 동시에 하나의 goroutine만 접근 허용
     v  map[string]int
 }
@@ -977,7 +1114,12 @@ func (c *SafeCounter) Value(key string) int {
         },
         {
           name: 'sync.Once',
-          code: `type Singleton struct{ data string }
+          code: `import (
+    "fmt"
+    "sync"
+)
+
+type Singleton struct{ data string }
 
 var (
     instance *Singleton
@@ -1025,7 +1167,9 @@ func fetchAll(urls []string) error {
         },
         {
           name: 'fan-out / fan-in 패턴',
-          code: `func fanOut(in <-chan int, n int) []<-chan int {
+          code: `import "sync"
+
+func fanOut(in <-chan int, n int) []<-chan int {
     outs := make([]<-chan int, n)
     for i := range n {
         out := make(chan int)
@@ -1061,7 +1205,9 @@ func merge(cs ...<-chan int) <-chan int {
       items: [
         {
           name: '슬라이스 기본',
-          code: `// 선언
+          code: `import "fmt"
+
+// 선언
 var s []int                     // nil 슬라이스 (len=0, cap=0)
 s2 := []int{1, 2, 3}           // 리터럴 초기화
 s3 := make([]int, 5)            // len=5, cap=5 (제로값으로 채움)
@@ -1077,7 +1223,9 @@ fmt.Println(s2, len(s2), cap(s2))`,
         },
         {
           name: '슬라이스 조작',
-          code: `s := []int{1, 2, 3, 4, 5}
+          code: `import "fmt"
+
+s := []int{1, 2, 3, 4, 5}
 
 // 슬라이싱
 fmt.Println(s[1:3])  // [2 3]
@@ -1115,7 +1263,9 @@ fmt.Println(slices.Min(nums))         // 1`,
         },
         {
           name: '맵 기본',
-          code: `// 선언 및 초기화
+          code: `import "fmt"
+
+// 선언 및 초기화
 m := map[string]int{
     "apple":  5,
     "banana": 3,
@@ -1160,7 +1310,9 @@ fmt.Println(m2) // map[b:2 c:3]`,
         },
         {
           name: '집합 (set) 패턴',
-          code: `// map[T]struct{} 로 집합 구현 (struct{}는 0바이트 → 메모리 절약)
+          code: `import "fmt"
+
+// map[T]struct{} 로 집합 구현 (struct{}는 0바이트 → 메모리 절약)
 type Set[T comparable] map[T]struct{}
 
 func (s Set[T]) Add(v T)      { s[v] = struct{}{} }
@@ -1177,7 +1329,9 @@ func main() {
         },
         {
           name: '슬라이스 필터/맵/리듀스',
-          code: `func Filter[T any](s []T, f func(T) bool) []T {
+          code: `import "fmt"
+
+func Filter[T any](s []T, f func(T) bool) []T {
     var out []T
     for _, v := range s {
         if f(v) {
@@ -1204,7 +1358,9 @@ func main() {
         },
         {
           name: '2D 슬라이스 (행렬)',
-          code: `rows, cols := 3, 4
+          code: `import "fmt"
+
+rows, cols := 3, 4
 matrix := make([][]int, rows)
 for i := range matrix {
     matrix[i] = make([]int, cols)
@@ -1228,7 +1384,9 @@ for _, row := range matrix {
       items: [
         {
           name: '문자열 기본',
-          code: `s := "Hello, 세계"
+          code: `import "fmt"
+
+s := "Hello, 세계"
 
 fmt.Println(len(s))           // 바이트 수
 fmt.Println(len([]rune(s)))   // 문자 수 (유니코드)
@@ -1245,7 +1403,10 @@ for i, r := range s {
         },
         {
           name: 'strings 패키지',
-          code: `import "strings"
+          code: `import (
+    "fmt"
+    "strings"
+)
 
 s := "  Hello, Go World!  "
 
@@ -1260,7 +1421,12 @@ fmt.Println(strings.Count(s, "l")) // 3`,
         },
         {
           name: 'strings.Builder (효율적 연결)',
-          code: `var sb strings.Builder
+          code: `import (
+    "fmt"
+    "strings"
+)
+
+var sb strings.Builder
 
 for i := range 5 {
     fmt.Fprintf(&sb, "item%d", i)
@@ -1275,7 +1441,10 @@ fmt.Println(result)
         },
         {
           name: 'strconv',
-          code: `import "strconv"
+          code: `import (
+    "fmt"
+    "strconv"
+)
 
 // 정수 변환
 n, err := strconv.Atoi("42")
@@ -1294,7 +1463,10 @@ fmt.Println(b)`,
         },
         {
           name: '정규표현식',
-          code: `import "regexp"
+          code: `import (
+    "fmt"
+    "regexp"
+)
 
 // 백틱 원시 문자열 사용 → 이스케이프 없이 패턴 작성 가능
 re := regexp.MustCompile(\`\\d+\`) // 숫자 1개 이상
@@ -1310,7 +1482,10 @@ fmt.Println(result) // "hello world"`,
         },
         {
           name: 'Unicode / rune 처리',
-          code: `import "unicode"
+          code: `import (
+    "fmt"
+    "unicode"
+)
 
 s := "Hello, 世界! 123"
 
@@ -1327,7 +1502,9 @@ for _, r := range s {
         },
         {
           name: '문자열 포맷팅',
-          code: `type Point struct{ X, Y int }
+          code: `import "fmt"
+
+type Point struct{ X, Y int }
 p := Point{3, 4}
 
 fmt.Printf("%v\\n",  p) // {3 4}
@@ -1368,7 +1545,12 @@ t.Execute(os.Stdout, data)`,
       items: [
         {
           name: '제네릭 함수',
-          code: `func Map[T, U any](s []T, f func(T) U) []U {
+          code: `import (
+    "fmt"
+    "strconv"
+)
+
+func Map[T, U any](s []T, f func(T) U) []U {
     result := make([]U, len(s))
     for i, v := range s {
         result[i] = f(v)
@@ -1384,7 +1566,10 @@ func main() {
         },
         {
           name: '타입 제약 (constraints)',
-          code: `import "cmp"
+          code: `import (
+    "cmp"
+    "fmt"
+)
 
 func Min[T cmp.Ordered](a, b T) T {
     if a < b {
@@ -1426,7 +1611,9 @@ func (s *Stack[T]) Len() int { return len(s.items) }`,
         },
         {
           name: '유니온 타입 제약',
-          code: `// ~int: int를 기반 타입으로 하는 모든 타입 포함 (예: type MyInt int)
+          code: `import "fmt"
+
+// ~int: int를 기반 타입으로 하는 모든 타입 포함 (예: type MyInt int)
 type Number interface {
     ~int | ~int32 | ~int64 | ~float32 | ~float64
 }
@@ -1460,7 +1647,9 @@ func (r Result[T]) IsOk() bool         { return r.err == nil }`,
         },
         {
           name: '제네릭 캐시 (sync.Map 래퍼)',
-          code: `// sync.Map: goroutine-safe 맵 (읽기 많고 쓰기 적을 때 유리)
+          code: `import "sync"
+
+// sync.Map: goroutine-safe 맵 (읽기 많고 쓰기 적을 때 유리)
 type Cache[K comparable, V any] struct {
     m sync.Map
 }
@@ -1479,7 +1668,9 @@ func (c *Cache[K, V]) Delete(k K) { c.m.Delete(k) }`,
         },
         {
           name: 'Reduce 제네릭',
-          code: `func Reduce[T, U any](s []T, init U, f func(U, T) U) U {
+          code: `import "fmt"
+
+func Reduce[T, U any](s []T, init U, f func(U, T) U) U {
     acc := init
     for _, v := range s {
         acc = f(acc, v)
@@ -1502,7 +1693,9 @@ func main() {
         },
         {
           name: '제네릭 Ptr 헬퍼',
-          code: `// 리터럴 값의 포인터를 반환하는 유틸
+          code: `import "fmt"
+
+// 리터럴 값의 포인터를 반환하는 유틸
 func Ptr[T any](v T) *T { return &v }
 
 func main() {
