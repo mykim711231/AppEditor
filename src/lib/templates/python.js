@@ -144,6 +144,68 @@ print(lo, hi)  # 1 9` },
 def greet(name: str, loud: bool = False) -> str:
     msg = f"Hello, {name}"
     return msg.upper() if loud else msg` },
+        { name: 'Optional / Union (typing)', code: `from typing import Optional, Union
+
+# Optional[X] 는 X | None 과 동일 (3.10+ 에서는 X | None 권장)
+def find_user(user_id: int) -> Optional[str]:
+    users = {1: "Alice", 2: "Bob"}
+    return users.get(user_id)  # 없으면 None 반환
+
+def process(value: Union[int, str]) -> str:
+    # 3.10+ 에서는 int | str 로 쓸 수 있음
+    return str(value).upper()
+
+print(find_user(1))   # Alice
+print(find_user(99))  # None
+print(process(42))    # 42` },
+        { name: 'TypedDict', code: `from typing import TypedDict
+
+# 딕셔너리에 키·타입을 명시해 IDE 자동완성 및 타입 검사에 활용
+class Movie(TypedDict):
+    title: str
+    year: int
+    rating: float
+
+m: Movie = {"title": "Inception", "year": 2010, "rating": 8.8}
+print(m["title"], m["year"])` },
+        { name: 'Protocol (구조적 서브타이핑)', code: `from typing import Protocol
+
+# ABC 상속 없이 메서드 시그니처만으로 타입 호환 여부 판단
+class Drawable(Protocol):
+    def draw(self) -> None: ...
+
+class Circle:
+    def draw(self) -> None:
+        print("원 그리기")
+
+class Square:
+    def draw(self) -> None:
+        print("사각형 그리기")
+
+def render(shape: Drawable) -> None:
+    shape.draw()
+
+render(Circle())   # 원 그리기
+render(Square())   # 사각형 그리기` },
+        { name: '타입 별칭 (3.12)', code: `# 3.12+ 에서는 type 키워드로 타입 별칭을 명확하게 선언
+type Vector = list[float]
+type Matrix = list[Vector]
+
+def dot(a: Vector, b: Vector) -> float:
+    return sum(x * y for x, y in zip(a, b))
+
+v1: Vector = [1.0, 2.0, 3.0]
+v2: Vector = [4.0, 5.0, 6.0]
+print(dot(v1, v2))  # 32.0` },
+        { name: '제너레이터 표현식', code: `# 리스트 컴프리헨션과 유사하지만 () 사용 → 지연 평가(lazy evaluation)
+total = sum(x**2 for x in range(1_000_000))  # 메모리에 리스트를 만들지 않음
+print(total)
+
+# 파이프라인처럼 연결 가능
+lines = ["  hello  ", "  world  ", "  python  "]
+stripped = (line.strip() for line in lines)
+upper = (s.upper() for s in stripped)
+print(list(upper))  # ['HELLO', 'WORLD', 'PYTHON']` },
         { name: '제너레이터', code: `def fibonacci():
     a, b = 0, 1
     while True:
@@ -274,6 +336,46 @@ class Rectangle(Shape):
 
 r = Rectangle(4, 5)
 print(r.area())  # 20` },
+        { name: 'Enum', code: `from enum import Enum, auto
+
+class Direction(Enum):
+    NORTH = auto()  # auto()가 순서대로 값을 자동 할당
+    SOUTH = auto()
+    EAST  = auto()
+    WEST  = auto()
+
+d = Direction.NORTH
+print(d)          # Direction.NORTH
+print(d.name)     # NORTH
+print(d.value)    # 1
+print(d is Direction.NORTH)  # True
+
+for item in Direction:
+    print(item.name, item.value)` },
+        { name: 'dataclass __post_init__ / frozen', code: `from dataclasses import dataclass, field
+
+@dataclass(frozen=True)  # frozen=True → 불변(immutable), 해시 가능
+class Point:
+    x: float
+    y: float
+
+    def distance_from_origin(self) -> float:
+        return (self.x**2 + self.y**2) ** 0.5
+
+@dataclass
+class User:
+    name: str
+    tags: list[str] = field(default_factory=list)  # 가변 기본값은 field() 사용
+    _full: str = field(init=False, repr=False)  # 생성자 인수 아님
+
+    def __post_init__(self):
+        # 인스턴스 생성 직후 자동 호출 — 유효성 검사나 파생 필드 계산에 사용
+        self._full = self.name.strip().title()
+
+u = User("  alice  ", tags=["admin"])
+print(u._full)  # Alice
+p = Point(3, 4)
+print(p.distance_from_origin())  # 5.0` },
         { name: '__slots__', code: `class Point:
     __slots__ = ("x", "y")  # 허용된 속성만 사용 → 메모리 절약
 
@@ -346,6 +448,28 @@ evens = [x for x in range(20) if x % 2 == 0]
 matrix = [[i*j for j in range(1,4)] for i in range(1,4)]
 print(squares)
 print(evens)` },
+        { name: '고급 컴프리헨션 (중첩/조건)', code: `# 중첩 루프: 2차원 리스트 평탄화
+matrix = [[1, 2, 3], [4, 5, 6], [7, 8, 9]]
+flat = [val for row in matrix for val in row]
+print(flat)  # [1, 2, 3, 4, 5, 6, 7, 8, 9]
+
+# if-else 표현식을 각 요소에 적용
+labeled = ["짝" if x % 2 == 0 else "홀" for x in range(6)]
+print(labeled)  # ['짝', '홀', '짝', '홀', '짝', '홀']
+
+# 세트 컴프리헨션 — 중복 제거
+words = ["hi", "hello", "hi", "hey"]
+unique_first = {w[0] for w in words}
+print(unique_first)  # {'h'}` },
+        { name: '슬라이스 step', code: `s = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+print(s[::2])    # [0, 2, 4, 6, 8]  — 짝수 인덱스
+print(s[1::2])   # [1, 3, 5, 7, 9]  — 홀수 인덱스
+print(s[::-1])   # 역순
+print(s[2:8:3])  # [2, 5]           — 2~7 범위에서 3 간격
+
+text = "abcdefgh"
+print(text[::2])  # aceg
+print(text[::-1]) # hgfedcba` },
         { name: '딕셔너리 기본', code: `person = {"name": "Alice", "age": 30}
 person["city"] = "Seoul"
 print(person.get("phone", "없음"))
@@ -390,6 +514,29 @@ dq.appendleft(0)
 dq.append(4)
 dq.popleft()
 print(dq)` },
+        { name: 'Counter most_common', code: `from collections import Counter
+
+text = "the quick brown fox jumps over the lazy dog"
+cnt = Counter(text.split())
+
+# 가장 많이 등장한 단어 Top 3
+print(cnt.most_common(3))  # [('the', 2), ...]
+
+# Counter 산술 연산
+a = Counter("apple")
+b = Counter("pineapple")
+print(a + b)  # 합산
+print(b - a)  # 차집합 (양수인 것만)
+print(a & b)  # 교집합 (최솟값)` },
+        { name: '딕셔너리 정렬', code: `scores = {"Alice": 85, "Carol": 92, "Bob": 78}
+
+# 값 기준 내림차순 정렬 → 새 딕셔너리
+sorted_by_score = dict(sorted(scores.items(), key=lambda kv: kv[1], reverse=True))
+print(sorted_by_score)  # {'Carol': 92, 'Alice': 85, 'Bob': 78}
+
+# 키 기준 정렬
+sorted_by_name = dict(sorted(scores.items()))
+print(sorted_by_name)` },
         { name: 'heapq', code: `import heapq
 
 nums = [3, 1, 4, 1, 5, 9, 2, 6]
@@ -429,21 +576,95 @@ with open("data.csv", "w", newline="", encoding="utf-8") as f:
 with open("data.csv", "r", encoding="utf-8") as f:
     for row in csv.DictReader(f):
         print(row)` },
-        { name: 'pathlib', code: `from pathlib import Path
+        { name: 'pathlib 파일 처리', code: `from pathlib import Path
 
-p = Path(".")
-for f in p.glob("*.py"):
-    print(f.name, f.stat().st_size)
+base = Path(__file__).parent  # 현재 스크립트 폴더
+data_dir = base / "data"      # / 연산자로 경로 결합
+data_dir.mkdir(parents=True, exist_ok=True)  # 중간 폴더도 자동 생성
 
-txt = Path("note.txt")
-txt.write_text("hello", encoding="utf-8")
-print(txt.read_text(encoding="utf-8"))` },
+out = data_dir / "result.txt"
+out.write_text("저장 완료", encoding="utf-8")
+print(out.read_text(encoding="utf-8"))
+
+# 파일 목록 순회
+for p in data_dir.iterdir():
+    print(p.name, p.suffix, p.stat().st_size)
+
+print(out.exists())   # True
+out.unlink()          # 파일 삭제` },
         { name: 'os 경로 처리', code: `import os
 
 base = os.path.dirname(__file__)
 full = os.path.join(base, "data", "file.txt")
 print(os.path.exists(full))
 print(os.path.splitext("photo.jpg"))  # ('photo', '.jpg')` },
+        { name: 'subprocess 실행', code: `import subprocess
+
+# 명령 실행 후 결과 캡처 (shell=False 권장 — 보안상 안전)
+result = subprocess.run(
+    ["python", "--version"],
+    capture_output=True,   # stdout/stderr 캡처
+    text=True,             # 바이트 대신 문자열로 반환
+    check=True,            # 비정상 종료 시 CalledProcessError 발생
+)
+print(result.stdout.strip())
+
+# 셸 파이프가 필요한 경우만 shell=True 사용
+out = subprocess.check_output("echo hello", shell=True, text=True)
+print(out.strip())` },
+        { name: '환경변수 (os.environ)', code: `import os
+
+# 환경변수 읽기 — 없으면 기본값 반환
+db_url = os.environ.get("DATABASE_URL", "sqlite:///local.db")
+debug = os.environ.get("DEBUG", "false").lower() == "true"
+print(db_url, debug)
+
+# 환경변수 설정 (현재 프로세스 내에서만 유효)
+os.environ["MY_TOKEN"] = "secret123"
+
+# 환경변수 목록 순회
+for key, val in os.environ.items():
+    if key.startswith("MY_"):
+        print(f"{key}={val}")` },
+        { name: 'sqlite3 with', code: `import sqlite3
+
+# with 블록 안에서 예외 발생 시 자동 rollback, 정상 종료 시 commit
+with sqlite3.connect("app.db") as conn:
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS users (
+            id   INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL,
+            age  INTEGER
+        )
+    """)
+    conn.execute("INSERT INTO users (name, age) VALUES (?, ?)", ("Alice", 30))
+    conn.execute("INSERT INTO users (name, age) VALUES (?, ?)", ("Bob", 25))
+
+    for row in conn.execute("SELECT * FROM users ORDER BY age"):
+        print(row)` },
+        { name: 'logging 파일 핸들러', code: `import logging
+
+# 루트 로거 대신 모듈 단위 로거 사용 권장
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
+
+# 콘솔 핸들러
+ch = logging.StreamHandler()
+ch.setLevel(logging.WARNING)
+
+# 파일 핸들러 (UTF-8, 매일 로테이션하려면 TimedRotatingFileHandler 사용)
+fh = logging.FileHandler("app.log", encoding="utf-8")
+fh.setLevel(logging.DEBUG)
+
+fmt = logging.Formatter("%(asctime)s [%(levelname)s] %(name)s: %(message)s")
+ch.setFormatter(fmt)
+fh.setFormatter(fmt)
+
+logger.addHandler(ch)
+logger.addHandler(fh)
+
+logger.debug("디버그 메시지 — 파일에만 기록")
+logger.warning("경고 메시지 — 콘솔·파일 모두 기록")` },
         { name: '임시 파일', code: `import tempfile
 
 with tempfile.NamedTemporaryFile(mode="w", suffix=".txt",
@@ -668,6 +889,46 @@ async def main():
         print(val)
 
 asyncio.run(main())` },
+        { name: 'async with / async for', code: `import asyncio
+
+# async with — 비동기 컨텍스트 매니저 (DB 연결, 파일, HTTP 세션 등에 사용)
+class AsyncResource:
+    async def __aenter__(self):
+        print("리소스 열기")
+        return self
+
+    async def __aexit__(self, *args):
+        print("리소스 닫기")
+
+    async def fetch(self):
+        await asyncio.sleep(0.1)
+        return "데이터"
+
+# async for — 비동기 이터러블 순회
+class AsyncCounter:
+    def __init__(self, n):
+        self.n = n
+        self.i = 0
+
+    def __aiter__(self):
+        return self
+
+    async def __anext__(self):
+        if self.i >= self.n:
+            raise StopAsyncIteration
+        self.i += 1
+        await asyncio.sleep(0.05)
+        return self.i
+
+async def main():
+    async with AsyncResource() as r:
+        data = await r.fetch()
+        print(data)
+
+    async for val in AsyncCounter(3):
+        print(val)  # 1, 2, 3
+
+asyncio.run(main())` },
         { name: 'asyncio.TaskGroup (3.11+)', code: `import asyncio
 
 async def task(name, delay):
@@ -767,6 +1028,30 @@ process = pipeline(
     lambda s: s.replace(" ", "_"),
 )
 print(process("  Hello World  "))  # hello_world` },
+        { name: 'unittest 기본', code: `import unittest
+
+def add(a, b):
+    return a + b
+
+class TestAdd(unittest.TestCase):
+    def test_integers(self):
+        self.assertEqual(add(1, 2), 3)
+
+    def test_floats(self):
+        self.assertAlmostEqual(add(0.1, 0.2), 0.3, places=5)
+
+    def test_strings(self):
+        self.assertEqual(add("hello", " world"), "hello world")
+
+    def test_negative(self):
+        self.assertLess(add(-5, 3), 0)
+
+    def setUp(self):
+        # 각 테스트 메서드 실행 전 호출
+        self.data = [1, 2, 3]
+
+if __name__ == "__main__":
+    unittest.main()` },
         { name: 'walrus 연산자 (:=)', code: `import re
 
 text = "Phone: 010-1234-5678"

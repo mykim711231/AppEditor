@@ -94,6 +94,24 @@ static double area(Shape s) {
     };
 }`,
         },
+        {
+          name: '레코드 패턴 중첩 분해 (Record Pattern)',
+          code: `// Java 21 정식 기능(JEP 440): 레코드를 switch 안에서 바로 분해
+record Point(int x, int y) {}
+record Line(Point start, Point end) {}
+
+// 중첩 레코드도 한 번에 분해, when 가드로 추가 조건
+static String describe(Object obj) {
+    return switch (obj) {
+        case Line(Point(int x1, int y1), Point(int x2, int y2))
+            when x1 == x2 -> "수직선 x=" + x1;
+        case Line(Point(var x1, var y1), Point(var x2, var y2)) ->
+            "사선 (" + x1 + "," + y1 + ")→(" + x2 + "," + y2 + ")";
+        case Point(var x, var y) -> "점 (" + x + "," + y + ")";
+        default -> "기타";
+    };
+}`,
+        },
       ],
     },
     {
@@ -322,6 +340,34 @@ static int eval(Expr e) {
 };
 r.run();`,
         },
+        {
+          name: 'enum 추상 메서드 (상수별 동작 정의)',
+          code: `// 각 상수가 추상 메서드를 다르게 구현 → 상수별 다형성
+enum Operation {
+    PLUS("+") {
+        @Override public double apply(double x, double y) { return x + y; }
+    },
+    MINUS("-") {
+        @Override public double apply(double x, double y) { return x - y; }
+    },
+    TIMES("*") {
+        @Override public double apply(double x, double y) { return x * y; }
+    };
+
+    private final String symbol;
+    Operation(String symbol) { this.symbol = symbol; }
+
+    // 각 상수가 반드시 구현해야 하는 추상 메서드
+    public abstract double apply(double x, double y);
+
+    @Override public String toString() { return symbol; }
+}
+
+// 사용 예시
+for (Operation op : Operation.values()) {
+    System.out.printf("3 %s 2 = %.1f%n", op, op.apply(3, 2));
+}`,
+        },
       ],
     },
     {
@@ -514,6 +560,22 @@ System.out.println(s.stripTrailing());  // "   hello"
 System.out.println("   ".isBlank());    // true
 System.out.println(s.isBlank());        // false`,
         },
+        {
+          name: 'String.lines() / repeat()',
+          code: `// lines(): 줄 구분자(\\n, \\r\\n 등)로 분리한 스트림 반환 (Java 11+)
+String text = "첫째 줄\\n둘째 줄\\n셋째 줄";
+long lineCount = text.lines().count();
+System.out.println(lineCount);  // 3
+
+text.lines()
+    .map(String::strip)
+    .filter(l -> !l.isBlank())
+    .forEach(System.out::println);
+
+// repeat(): 문자열을 n번 반복 (Java 11+)
+String sep = "=".repeat(30);
+System.out.println(sep);  // ==============================`,
+        },
       ],
     },
     {
@@ -597,6 +659,27 @@ Collections.reverse(list);
 Collections.shuffle(list);
 int max = Collections.max(list);
 System.out.println(max);`,
+        },
+        {
+          name: 'Comparator 다중 정렬 (thenComparing)',
+          code: `import java.util.Comparator;
+import java.util.List;
+
+record Employee(String dept, String name, int salary) {}
+
+var employees = List.of(
+    new Employee("Dev",  "Charlie", 5000),
+    new Employee("Dev",  "Alice",   7000),
+    new Employee("HR",   "Bob",     4000),
+    new Employee("Dev",  "Alice",   6000));
+
+// 1차: 부서명 오름차순, 2차: 이름 오름차순, 3차: 급여 내림차순
+var sorted = employees.stream()
+    .sorted(Comparator.comparing(Employee::dept)
+        .thenComparing(Employee::name)
+        .thenComparing(Comparator.comparingInt(Employee::salary).reversed()))
+    .toList();
+sorted.forEach(System.out::println);`,
         },
         {
           name: 'Map.Entry 순회',
@@ -711,6 +794,44 @@ long count = words.stream()
 System.out.println(count);   // 3`,
         },
         {
+          name: 'Collectors.partitioningBy / toMap',
+          code: `import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+var nums = List.of(1, 2, 3, 4, 5, 6);
+
+// partitioningBy: true/false 두 그룹으로 분류
+Map<Boolean, List<Integer>> parts = nums.stream()
+    .collect(Collectors.partitioningBy(n -> n % 2 == 0));
+System.out.println(parts.get(true));   // [2, 4, 6]
+System.out.println(parts.get(false));  // [1, 3, 5]
+
+// toMap: 스트림 요소를 Map으로 변환 (키 중복 시 예외)
+record Item(String name, int price) {}
+var items = List.of(new Item("apple", 100), new Item("banana", 200));
+Map<String, Integer> priceMap = items.stream()
+    .collect(Collectors.toMap(Item::name, Item::price));
+System.out.println(priceMap);  // {apple=100, banana=200}`,
+        },
+        {
+          name: 'Collectors.teeing',
+          code: `import java.util.List;
+import java.util.stream.Collectors;
+
+var nums = List.of(1, 2, 3, 4, 5);
+
+// teeing: 두 컬렉터를 동시에 실행해 결과를 합산 (Java 12+)
+record Stats(long count, int sum) {}
+Stats stats = nums.stream()
+    .collect(Collectors.teeing(
+        Collectors.counting(),               // 첫 번째 컬렉터
+        Collectors.summingInt(n -> n),       // 두 번째 컬렉터
+        Stats::new                           // 결과 병합 함수
+    ));
+System.out.println(stats.count() + "개, 합계=" + stats.sum());  // 5개, 합계=15`,
+        },
+        {
           name: 'Optional',
           code: `import java.util.List;
 
@@ -721,6 +842,25 @@ var opt = List.of(3, 7, 2, 9, 1).stream()
 opt.ifPresent(v -> System.out.println("found: " + v));  // 값이 있을 때만 실행
 int val  = opt.orElse(-1);                  // 없으면 기본값
 int val2 = opt.orElseGet(() -> 0);          // 없으면 공급자 호출`,
+        },
+        {
+          name: 'Optional 체이닝 / orElseThrow',
+          code: `import java.util.Optional;
+
+// map: 값이 있으면 변환, 없으면 빈 Optional 유지
+// filter: 조건을 불만족하면 빈 Optional로 변환
+Optional<String> result = Optional.of("  hello  ")
+    .map(String::strip)              // 공백 제거
+    .filter(s -> !s.isEmpty())       // 비어 있으면 empty
+    .map(String::toUpperCase);       // 대문자 변환
+
+// orElseThrow: 값이 없으면 예외 (NoSuchElementException 또는 커스텀)
+String val = result.orElseThrow(() -> new IllegalStateException("값 없음"));
+System.out.println(val);  // HELLO
+
+// or: 비어 있을 때 다른 Optional로 대체 (Java 9+)
+Optional<String> fallback = Optional.<String>empty()
+    .or(() -> Optional.of("기본값"));`,
         },
         {
           name: '병렬 스트림',
@@ -817,6 +957,29 @@ Files.copy(tmp, copy, StandardCopyOption.REPLACE_EXISTING);
 
 Files.delete(tmp);
 System.out.println(Files.exists(tmp));  // false`,
+        },
+        {
+          name: 'Files.walk (디렉터리 재귀 탐색)',
+          code: `import java.io.IOException;
+import java.nio.file.*;
+
+// Files.walk: 지정 경로 아래 모든 파일/폴더를 재귀적으로 스트림으로 반환
+// maxDepth 생략 시 전체 깊이 탐색
+try (var stream = Files.walk(Path.of("."), 3)) {
+    // .java 파일만 필터링
+    stream.filter(p -> p.toString().endsWith(".java"))
+          .forEach(System.out::println);
+} catch (IOException e) {
+    e.printStackTrace();
+}
+
+// Files.find: 조건을 BiPredicate로 직접 지정 (성능 우수)
+try (var found = Files.find(Path.of("."), 5,
+        (p, attr) -> attr.isRegularFile() && p.toString().endsWith(".class"))) {
+    found.forEach(System.out::println);
+} catch (IOException e) {
+    e.printStackTrace();
+}`,
         },
         {
           name: 'Properties 파일 읽기',
@@ -1117,6 +1280,25 @@ var combined = f1.thenCombine(f2, (a, b) -> a + " " + b);
 System.out.println(combined.join());  // Hello World`,
         },
         {
+          name: 'CompletableFuture thenCompose (비동기 체이닝)',
+          code: `import java.util.concurrent.CompletableFuture;
+
+// thenApply : 결과를 동기적으로 변환 (T → U)
+// thenCompose: 결과로 새 CompletableFuture 반환 (flatMap 역할, 중첩 방지)
+static CompletableFuture<String> fetchUser(int id) {
+    return CompletableFuture.supplyAsync(() -> "User#" + id);
+}
+static CompletableFuture<String> fetchProfile(String user) {
+    return CompletableFuture.supplyAsync(() -> user + " 프로필");
+}
+
+// thenCompose로 체이닝: CompletableFuture<CompletableFuture<T>> 중첩 없이 평탄화
+String profile = fetchUser(42)
+    .thenCompose(user -> fetchProfile(user))  // 순차 비동기 호출
+    .join();
+System.out.println(profile);  // User#42 프로필`,
+        },
+        {
           name: 'synchronized / volatile',
           code: `public class Counter {
     // synchronized가 가시성 보장 → volatile 불필요
@@ -1290,6 +1472,25 @@ var byRole = users.stream()
 byRole.forEach((role, list) -> System.out.println(role + ": " + list));`,
         },
         {
+          name: 'var + enhanced for (지역 변수 타입 추론)',
+          code: `import java.util.List;
+import java.util.Map;
+
+// var는 지역 변수에만 사용 가능 — 컴파일 타임에 타입 확정
+var names = List.of("Alice", "Bob", "Charlie");
+
+// enhanced for 에서 var 사용: 요소 타입을 반복해 쓰지 않아도 됨
+for (var name : names) {
+    System.out.println(name.toUpperCase());  // String 메서드 자동완성 가능
+}
+
+// Map.Entry 순회에서도 간결하게
+var scores = Map.of("Alice", 95, "Bob", 80);
+for (var entry : scores.entrySet()) {
+    System.out.println(entry.getKey() + " → " + entry.getValue());
+}`,
+        },
+        {
           name: '단순 HTTP GET (Java 11+)',
           code: `import java.io.IOException;
 import java.net.URI;
@@ -1309,6 +1510,114 @@ try {
     System.out.println(resp.body());
 } catch (IOException | InterruptedException e) {
     e.printStackTrace();
+}`,
+        },
+      ],
+    },
+    {
+      title: '테스트 (JUnit 5)',
+      items: [
+        {
+          name: 'JUnit5 기본 테스트',
+          code: `import org.junit.jupiter.api.*;
+import static org.junit.jupiter.api.Assertions.*;
+
+class CalculatorTest {
+
+    // @BeforeEach: 각 테스트 메서드 실행 전 호출 (setUp)
+    @BeforeEach
+    void setUp() { /* 테스트 픽스처 초기화 */ }
+
+    @Test
+    @DisplayName("두 수의 합이 올바른지 검증")
+    void testAdd() {
+        int result = 2 + 3;
+        assertEquals(5, result, "2+3은 5여야 합니다");
+    }
+
+    @Test
+    void testNull() {
+        assertNull(null);               // null 검증
+        assertNotNull("text");          // non-null 검증
+        assertTrue(3 > 1);             // 조건이 true인지
+        assertFalse("".length() > 0);  // 조건이 false인지
+    }
+
+    // 예외가 발생해야 하는 경우 검증
+    @Test
+    void testException() {
+        assertThrows(ArithmeticException.class, () -> {
+            int x = 1 / 0;
+        });
+    }
+}`,
+        },
+        {
+          name: 'JUnit5 파라미터 테스트',
+          code: `import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.*;
+import static org.junit.jupiter.api.Assertions.*;
+
+class ParamTest {
+
+    // @ValueSource: 단순 값 목록으로 반복 테스트
+    @ParameterizedTest
+    @ValueSource(strings = {"hello", "world", "java"})
+    void testNotBlank(String s) {
+        assertFalse(s.isBlank());
+    }
+
+    // @CsvSource: 쉼표로 구분된 여러 인수 전달
+    @ParameterizedTest
+    @CsvSource({
+        "2, 3, 5",
+        "0, 0, 0",
+        "-1, 1, 0"
+    })
+    void testAdd(int a, int b, int expected) {
+        assertEquals(expected, a + b);
+    }
+
+    // @NullAndEmptySource: null 과 빈 문자열 자동 주입
+    @ParameterizedTest
+    @NullAndEmptySource
+    void testBlankOrNull(String s) {
+        assertTrue(s == null || s.isBlank());
+    }
+}`,
+        },
+        {
+          name: 'JUnit5 중첩 테스트 & 생명주기',
+          code: `import org.junit.jupiter.api.*;
+import static org.junit.jupiter.api.Assertions.*;
+
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+class LifecycleTest {
+
+    // @BeforeAll: 클래스 당 1회 (static)
+    @BeforeAll
+    static void initAll() { System.out.println("전체 시작"); }
+
+    // @AfterAll: 클래스 당 1회 (static)
+    @AfterAll
+    static void tearDownAll() { System.out.println("전체 종료"); }
+
+    @Test @Order(1)
+    @DisplayName("먼저 실행")
+    void first() { assertTrue(true); }
+
+    @Test @Order(2)
+    void second() { assertEquals(4, 2 * 2); }
+
+    // @Nested: 관련 테스트를 논리적으로 그룹화
+    @Nested
+    @DisplayName("음수 케이스")
+    class NegativeTests {
+        @Test
+        void negativeTimesNegative() {
+            assertTrue((-1) * (-1) > 0);
+        }
+    }
 }`,
         },
       ],

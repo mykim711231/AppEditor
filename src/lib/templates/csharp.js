@@ -40,6 +40,24 @@ var tail = arr[^2..];        // [4, 5]` },
 int[] numbers = [1, 2, 3, 4, 5];
 List<string> names = ["Alice", "Bob"];
 int[] merged = [..numbers, 6, 7];` },
+        { name: 'params 키워드', code: `// params: 가변 인수 메서드
+static int Sum(params int[] values) => values.Sum();
+
+Console.WriteLine(Sum(1, 2, 3));       // 6
+Console.WriteLine(Sum(10, 20));        // 30
+Console.WriteLine(Sum([1, 2, 3, 4]));  // 배열도 직접 전달 가능` },
+        { name: 'Nullable 참조 타입', code: `// 파일 상단 또는 .csproj에서 활성화
+// <Nullable>enable</Nullable>
+
+string  name  = "Alice"; // null 불가 — 경고 없음
+string? maybe = null;    // null 허용
+
+// null 단언 연산자 (!) — 반드시 non-null임을 컴파일러에게 알림
+int len = maybe!.Length;
+
+// null 포기 패턴 대신 is not null 확인 권장
+if (maybe is not null)
+    Console.WriteLine(maybe.Length);` },
       ],
     },
     {
@@ -99,6 +117,40 @@ if (val is not null)
     > 0 and < 10 => "small positive",
     _           => "large",
 };` },
+        { name: '튜플 switch', code: `// 두 값의 조합으로 분기하는 튜플 패턴
+static string Describe(int x, int y) => (x, y) switch
+{
+    (0, 0)       => "원점",
+    (> 0, > 0)   => "1사분면",
+    (< 0, > 0)   => "2사분면",
+    (< 0, < 0)   => "3사분면",
+    (> 0, < 0)   => "4사분면",
+    _            => "축 위",
+};` },
+        { name: '리스트 패턴', code: `// C# 11+ 리스트 패턴 매칭
+int[] arr = [1, 2, 3];
+
+bool match = arr switch
+{
+    []          => false,        // 빈 배열
+    [var x]     => false,        // 요소 1개
+    [1, 2, ..]  => true,         // 1,2로 시작하는 배열 ✓
+    _           => false,
+};
+
+// 분해도 가능
+if (arr is [var first, var second, ..])
+    Console.WriteLine($"첫={first}, 둘={second}");` },
+        { name: '프로퍼티 패턴', code: `record Order(string Status, decimal Amount);
+
+static string Describe(Order o) => o switch
+{
+    { Status: "Paid", Amount: > 1000 }  => "고액 결제 완료",
+    { Status: "Paid" }                  => "결제 완료",
+    { Status: "Pending", Amount: 0 }    => "빈 주문 대기",
+    { Status: "Pending" }               => "결제 대기",
+    _                                   => "알 수 없음",
+};` },
       ],
     },
     {
@@ -109,6 +161,26 @@ if (val is not null)
 var p1 = new Person("Alice", 30);
 var p2 = p1 with { Age = 31 }; // 일부만 변경한 복사본 생성
 Console.WriteLine(p1 == new Person("Alice", 30)); // true (값 기반 비교)` },
+        { name: 'record struct', code: `// record struct: 값 타입 + 값 기반 동등성 (힙 할당 없음)
+record struct Point(double X, double Y)
+{
+    public double Distance => Math.Sqrt(X * X + Y * Y);
+}
+
+var p1 = new Point(3, 4);
+var p2 = new Point(3, 4);
+Console.WriteLine(p1 == p2); // true (값 비교)
+Console.WriteLine(p1.Distance); // 5` },
+        { name: 'required 멤버', code: `// required: 객체 초기화 시 반드시 설정해야 하는 프로퍼티
+class User
+{
+    public required string Name { get; init; }  // 필수
+    public required string Email { get; init; } // 필수
+    public string Role { get; init; } = "User"; // 선택 (기본값 있음)
+}
+
+// Name, Email 누락 시 컴파일 오류
+var user = new User { Name = "Alice", Email = "a@b.com" };` },
         { name: '기본 생성자 (C# 12)', code: `// C# 12: 클래스도 기본 생성자 지원
 class Point(int x, int y)
 {
@@ -287,6 +359,46 @@ string upper = new(s.Select(char.ToUpper).ToArray());` },
       ],
     },
     {
+      title: '날짜/시간',
+      items: [
+        { name: 'DateTime 기본', code: `DateTime now = DateTime.Now;           // 로컬 시간
+DateTime utc = DateTime.UtcNow;         // UTC 시간
+
+var dt = new DateTime(2024, 6, 15, 9, 30, 0); // 년월일 시분초
+Console.WriteLine(dt.ToString("yyyy-MM-dd HH:mm:ss")); // 2024-06-15 09:30:00
+
+// 날짜 계산
+DateTime tomorrow = now.AddDays(1);
+DateTime nextMonth = now.AddMonths(1);
+bool isPast = dt < DateTime.Now;` },
+        { name: 'DateOnly / TimeOnly', code: `// .NET 6+: 날짜와 시간을 분리한 타입
+DateOnly date = new DateOnly(2024, 6, 15);
+TimeOnly time = new TimeOnly(9, 30, 0);
+
+Console.WriteLine(date.ToString("yyyy-MM-dd")); // 2024-06-15
+Console.WriteLine(time.ToString("HH:mm"));      // 09:30
+
+// DateTime에서 변환
+DateOnly today = DateOnly.FromDateTime(DateTime.Now);
+TimeOnly now   = TimeOnly.FromDateTime(DateTime.Now);
+
+// 날짜 계산
+DateOnly nextWeek = today.AddDays(7);
+bool isWeekend = today.DayOfWeek is DayOfWeek.Saturday or DayOfWeek.Sunday;` },
+        { name: 'TimeSpan', code: `TimeSpan duration = TimeSpan.FromHours(1.5);   // 1시간 30분
+TimeSpan delay    = TimeSpan.FromSeconds(30);
+
+Console.WriteLine(duration.TotalMinutes); // 90
+Console.WriteLine(duration.Hours);        // 1
+
+// 두 날짜의 차이
+DateTime start = new DateTime(2024, 1, 1);
+DateTime end   = new DateTime(2024, 6, 15);
+TimeSpan diff  = end - start;
+Console.WriteLine($"{diff.Days}일 경과"); // 166일 경과` },
+      ],
+    },
+    {
       title: '컬렉션',
       items: [
         { name: 'List<T>', code: `var list = new List<int> { 1, 2, 3 };
@@ -347,6 +459,32 @@ pq.Enqueue("high",   1);
 pq.Enqueue("medium", 2);
 while (pq.TryDequeue(out string? item, out _))
     Console.WriteLine(item);` },
+        { name: 'Dictionary 안전 조회', code: `var dict = new Dictionary<string, int>
+{
+    ["apple"]  = 10,
+    ["banana"] = 20,
+};
+
+// TryGetValue: 키 존재 여부 확인 + 값 가져오기
+if (dict.TryGetValue("apple", out int count))
+    Console.WriteLine(count); // 10
+
+// GetValueOrDefault: 없으면 기본값 반환 (예외 없음)
+int val = dict.GetValueOrDefault("cherry", -1); // -1
+int zero = dict.GetValueOrDefault("cherry");     // 0 (int 기본값)` },
+        { name: 'Memory<T>', code: `// Memory<T>: Span처럼 슬라이싱하되 async 메서드에도 사용 가능
+byte[] buffer = new byte[1024];
+Memory<byte> mem = buffer.AsMemory();
+
+Memory<byte> header = mem[..4];   // 앞 4바이트
+Memory<byte> body   = mem[4..];   // 나머지
+
+// async 메서드에도 전달 가능 (Span은 불가)
+async Task WriteAsync(Memory<byte> chunk)
+{
+    await Task.Delay(1); // 예시
+    chunk.Span[0] = 0xFF; // Span으로 변환해서 실제 쓰기
+}` },
       ],
     },
     {
@@ -410,6 +548,39 @@ var products = new List<Product>
 };
 var byId     = products.ToDictionary(p => p.Id);
 var byCategory = products.ToLookup(p => p.Category);` },
+        { name: 'Aggregate (fold)', code: `var numbers = new[] { 1, 2, 3, 4, 5 };
+
+// 누적 합 (seed 없음 — 첫 요소가 초기값)
+int sum = numbers.Aggregate((acc, n) => acc + n); // 15
+
+// seed 지정 — 팩토리얼
+int factorial = numbers.Aggregate(1, (acc, n) => acc * n); // 120
+
+// 문자열 누적
+string csv = numbers.Aggregate("", (acc, n) => acc == "" ? $"{n}" : $"{acc},{n}");
+Console.WriteLine(csv); // "1,2,3,4,5"` },
+        { name: 'Zip', code: `var names  = new[] { "Alice", "Bob", "Charlie" };
+var scores = new[] { 95, 87, 72 };
+
+// 두 시퀀스를 쌍으로 묶기
+var pairs = names.Zip(scores, (name, score) => $"{name}: {score}");
+foreach (var p in pairs) Console.WriteLine(p);
+// Alice: 95 / Bob: 87 / Charlie: 72
+
+// C# 8+: 튜플로 반환 (결과 선택자 없이)
+var tuples = names.Zip(scores); // IEnumerable<(string, int)>` },
+        { name: 'yield return (생성기)', code: `// IEnumerable을 반환하는 지연 실행 메서드
+static IEnumerable<int> GetEvenNumbers(int max)
+{
+    for (int i = 0; i <= max; i += 2)
+        yield return i; // 값을 하나씩 내보냄 (지연 평가)
+}
+
+foreach (var n in GetEvenNumbers(10))
+    Console.Write(n + " "); // 0 2 4 6 8 10
+
+// LINQ와 연결 가능
+var big = GetEvenNumbers(100).Where(n => n > 50).Take(3);` },
       ],
     },
     {
@@ -656,6 +827,64 @@ static async Task<T?> SafeExecuteAsync<T>(
     {
         logger.LogError(ex, "Operation failed");
         return default;
+    }
+}` },
+      ],
+    },
+    {
+      title: '테스트 (xUnit)',
+      items: [
+        { name: 'xUnit 기본 테스트', code: `// NuGet: xunit, xunit.runner.visualstudio
+using Xunit;
+
+public class CalculatorTests
+{
+    [Fact] // 단일 케이스 테스트
+    public void Add_ReturnsCorrectSum()
+    {
+        // Arrange — 준비
+        var calc = new Calculator();
+        // Act — 실행
+        int result = calc.Add(2, 3);
+        // Assert — 검증
+        Assert.Equal(5, result);
+    }
+
+    [Theory] // 여러 케이스 테스트
+    [InlineData(2, 3, 5)]
+    [InlineData(-1, 1, 0)]
+    [InlineData(0, 0, 0)]
+    public void Add_MultipleInputs(int a, int b, int expected)
+    {
+        Assert.Equal(expected, new Calculator().Add(a, b));
+    }
+}` },
+        { name: 'xUnit Assert 모음', code: `// 자주 쓰는 Assert 메서드
+Assert.Equal(expected, actual);          // 값 동등
+Assert.NotEqual(unexpected, actual);
+Assert.True(condition);
+Assert.False(condition);
+Assert.Null(obj);
+Assert.NotNull(obj);
+Assert.Contains("World", "Hello World"); // 문자열 포함
+Assert.Throws<ArgumentException>(() => Validate(null)); // 예외 발생 확인
+await Assert.ThrowsAsync<IOException>(() => ReadFileAsync("missing.txt"));` },
+        { name: 'xUnit 비동기 테스트', code: `using Xunit;
+
+public class ServiceTests
+{
+    [Fact]
+    public async Task FetchData_ReturnsExpectedResult()
+    {
+        // Arrange
+        var service = new DataService();
+
+        // Act
+        var result = await service.FetchAsync(id: 1);
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.Equal(1, result.Id);
     }
 }` },
       ],

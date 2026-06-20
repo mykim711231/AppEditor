@@ -6,5 +6,7 @@ import javascript from './templates/javascript'
 import typescript from './templates/typescript'
 import csharp from './templates/csharp'
 import go from './templates/go'
+import powershell from './templates/powershell'
+import bash from './templates/bash'
 
-export const CODE_TEMPLATES = [python, java, javascript, typescript, csharp, go]
+export const CODE_TEMPLATES = [python, java, javascript, typescript, csharp, go, powershell, bash]

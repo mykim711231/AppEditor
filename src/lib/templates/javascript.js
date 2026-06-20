@@ -437,6 +437,14 @@ for (const [i, fruit] of fruits.entries()) {
   console.log(\`\${i}: \${fruit}\`);
 }`,
         },
+        {
+          name: 'findLast / findLastIndex',
+          code: `// 배열 끝에서부터 조건에 맞는 요소를 찾음 (Node 20 / ES2023 지원)
+const nums = [1, 2, 3, 4, 3, 2];
+const lastEven = nums.findLast(n => n % 2 === 0);      // 2
+const lastEvenIdx = nums.findLastIndex(n => n % 2 === 0); // 5
+console.log(lastEven, lastEvenIdx);`,
+        },
       ],
     },
     {
@@ -514,6 +522,30 @@ set.delete(2);
 console.log(set.size);         // 3`,
         },
         {
+          name: 'Map 반복 (keys / values / entries)',
+          code: `// Map 은 삽입 순서를 보장하며 any 타입을 키로 사용 가능
+const scores = new Map([['Alice', 90], ['Bob', 85], ['Carol', 92]]);
+
+// keys / values / entries 모두 이터레이터 반환
+for (const [name, score] of scores.entries()) {
+  console.log(\`\${name}: \${score}\`);
+}
+console.log([...scores.keys()]);   // ['Alice', 'Bob', 'Carol']
+console.log([...scores.values()]); // [90, 85, 92]`,
+        },
+        {
+          name: 'Set 집합 연산 (합집합 / 교집합 / 차집합)',
+          code: `// 스프레드와 filter 를 조합해 집합 연산 구현
+const a = new Set([1, 2, 3, 4]);
+const b = new Set([3, 4, 5, 6]);
+
+const union        = new Set([...a, ...b]);              // 합집합 {1,2,3,4,5,6}
+const intersection = new Set([...a].filter(x => b.has(x))); // 교집합 {3,4}
+const difference   = new Set([...a].filter(x => !b.has(x))); // 차집합 {1,2}
+
+console.log([...union], [...intersection], [...difference]);`,
+        },
+        {
           name: 'Proxy & Reflect',
           code: `const handler = {
   get(target, key) {
@@ -586,6 +618,45 @@ const result = await Promise.race([fetchData(), timeout(3000)]);
 
 // 첫 번째 성공 (모두 실패 시 AggregateError)
 const first = await Promise.any([p1, p2, p3]);`,
+        },
+        {
+          name: 'AbortController (fetch 타임아웃)',
+          code: `// AbortController 로 fetch 를 일정 시간 후 취소
+async function fetchWithTimeout(url, ms = 5000) {
+  const controller = new AbortController();
+  const timerId = setTimeout(() => controller.abort(), ms);
+  try {
+    const res = await fetch(url, { signal: controller.signal });
+    return await res.json();
+  } catch (err) {
+    if (err.name === 'AbortError') throw new Error(\`요청 타임아웃: \${ms}ms\`);
+    throw err;
+  } finally {
+    clearTimeout(timerId);
+  }
+}`,
+        },
+        {
+          name: 'fetch POST (JSON / FormData)',
+          code: `// JSON 바디 전송
+async function postJSON(url, data) {
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) throw new Error(\`HTTP \${res.status}\`);
+  return res.json();
+}
+
+// 파일 업로드 (FormData)
+async function uploadFile(url, file) {
+  const form = new FormData();
+  form.append('file', file);
+  form.append('name', file.name);
+  const res = await fetch(url, { method: 'POST', body: form });
+  return res.json();
+}`,
         },
         {
           name: '순차 async 처리',
@@ -713,6 +784,21 @@ process.on('unhandledRejection', (reason, promise) => {
 }`,
         },
         {
+          name: '옵셔널 catch 바인딩',
+          code: `// ES2019~: 에러 객체가 필요 없을 때 catch(e) 대신 catch {} 사용 가능
+function isValidJSON(str) {
+  try {
+    JSON.parse(str);
+    return true;
+  } catch {
+    // 에러 변수 불필요 → 바인딩 생략
+    return false;
+  }
+}
+console.log(isValidJSON('{"a":1}')); // true
+console.log(isValidJSON('bad'));     // false`,
+        },
+        {
           name: 'async 에러 래퍼',
           code: `// Express 등에서 async 라우터 에러 처리
 const asyncHandler = fn => (req, res, next) =>
@@ -814,6 +900,79 @@ console.log(fmt.format(new Date())); // '2024. 01. 15. 오후 03:30'
 
 const relFmt = new Intl.RelativeTimeFormat('ko', { numeric: 'auto' });
 console.log(relFmt.format(-1, 'day')); // '어제'`,
+        },
+        {
+          name: 'Intl.NumberFormat (숫자·통화 포맷)',
+          code: `// 숫자를 로케일에 맞게 표시 (통화·단위·퍼센트)
+const numFmt = new Intl.NumberFormat('ko-KR');
+console.log(numFmt.format(1234567)); // '1,234,567'
+
+const krwFmt = new Intl.NumberFormat('ko-KR', { style: 'currency', currency: 'KRW' });
+console.log(krwFmt.format(9900)); // '₩9,900'
+
+const pctFmt = new Intl.NumberFormat('ko-KR', { style: 'percent', maximumFractionDigits: 1 });
+console.log(pctFmt.format(0.856)); // '85.6%'`,
+        },
+        {
+          name: 'JSON.stringify (replacer & 들여쓰기)',
+          code: `const data = { id: 1, name: 'Kim', password: 'secret', score: 99 };
+
+// 특정 키만 직렬화 (배열 replacer)
+const safe = JSON.stringify(data, ['id', 'name'], 2);
+console.log(safe);
+// {
+//   "id": 1,
+//   "name": "Kim"
+// }
+
+// 값 변환 (함수 replacer)
+const redacted = JSON.stringify(data, (key, val) =>
+  key === 'password' ? undefined : val, 2);`,
+        },
+        {
+          name: '정규식 named groups & matchAll',
+          code: `// (?<name>...) 으로 캡처 그룹에 이름 부여
+const dateRe = /(?<year>\\d{4})-(?<month>\\d{2})-(?<day>\\d{2})/g;
+const text = '오늘은 2024-01-15, 내일은 2024-01-16';
+
+// matchAll: 모든 매치를 이터레이터로 반환
+for (const m of text.matchAll(dateRe)) {
+  const { year, month, day } = m.groups;
+  console.log(\`\${year}년 \${month}월 \${day}일\`);
+}
+// 2024년 01월 15일
+// 2024년 01월 16일`,
+        },
+        {
+          name: 'EventTarget / CustomEvent (브라우저)',
+          code: `// CustomEvent 로 컴포넌트 간 느슨한 결합 이벤트 통신
+const bus = new EventTarget();
+
+// 구독
+bus.addEventListener('user:login', (e) => {
+  console.log('로그인:', e.detail.username);
+});
+
+// 발행 — detail 에 원하는 데이터 포함
+bus.dispatchEvent(new CustomEvent('user:login', {
+  detail: { username: 'Kim', role: 'admin' },
+  bubbles: false,
+}));`,
+        },
+        {
+          name: '동적 import() (코드 분할)',
+          code: `// import() 는 Promise 반환 → 필요한 시점에만 모듈 로드
+async function loadChart() {
+  // 사용자가 차트를 열 때만 라이브러리 로드
+  const { Chart } = await import('./chart.js');
+  return new Chart('#canvas');
+}
+
+// 조건부 로드
+if (process.env.NODE_ENV === 'development') {
+  const { devTools } = await import('./devTools.js');
+  devTools.init();
+}`,
         },
         {
           name: '로컬스토리지 JSON 래퍼',

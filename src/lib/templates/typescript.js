@@ -97,6 +97,38 @@ const frozen: ReadonlyArray<number> = [1, 2, 3];
           code: `const el = document.getElementById('app')!; // non-null assertion
 const len = el?.textContent?.length ?? 0;    // optional chain + nullish coalescing`,
         },
+        {
+          name: 'enum vs const 객체 비교',
+          code: `// enum: 런타임 객체 생성 O, 역방향 매핑(숫자 enum) O, 트리-쉐이킹 어려움
+enum Direction { Up = 'UP', Down = 'DOWN' }
+
+// const 객체 + as const: 트리-쉐이킹 가능, 타입과 값 모두 활용 가능 (권장 패턴)
+const DIRECTION = { Up: 'UP', Down: 'DOWN' } as const;
+type Direction2 = typeof DIRECTION[keyof typeof DIRECTION]; // "UP" | "DOWN"
+
+// 사용법 비교
+function move1(d: Direction)  { console.log(d); } // enum 사용
+function move2(d: Direction2) { console.log(d); } // const 객체 사용
+
+move1(Direction.Up);    // Direction.Up
+move2(DIRECTION.Up);    // "UP"`,
+        },
+        {
+          name: 'readonly 튜플 & 고정 길이 배열',
+          code: `// readonly 튜플: 길이와 각 위치의 타입이 고정되고 변경 불가
+type RGB = readonly [r: number, g: number, b: number];
+const red: RGB = [255, 0, 0];
+// red[0] = 128; // Error: readonly
+
+// 함수에서 readonly 튜플 반환 — 구조 분해 시 리터럴 타입 유지
+function minMax(arr: number[]): readonly [number, number] {
+  return [Math.min(...arr), Math.max(...arr)];
+}
+const [lo, hi] = minMax([3, 1, 4, 1, 5]); // lo: number, hi: number
+
+// 가변 길이 readonly 튜플
+type AtLeastOne<T> = readonly [T, ...T[]];`,
+        },
       ],
     },
     {
@@ -448,6 +480,28 @@ interface Dog {
 }`,
         },
         {
+          name: '인터페이스 호출 시그니처 & 오버로드',
+          code: `// 인터페이스로 함수 타입을 표현할 때 여러 시그니처를 나열하면 오버로드가 됩니다
+interface Formatter {
+  (value: string): string;
+  (value: number, decimals: number): string;
+  // 추가 프로퍼티도 함께 선언 가능
+  locale: string;
+}
+
+// 인터페이스로 생성자(construct signature) 표현
+interface ClockConstructor {
+  new (hour: number, minute: number): ClockInterface;
+}
+interface ClockInterface {
+  tick(): void;
+}
+
+function createClock(ctor: ClockConstructor, h: number, m: number): ClockInterface {
+  return new ctor(h, m);
+}`,
+        },
+        {
           name: '인덱스 시그니처',
           code: `interface StringMap {
   [key: string]: string;
@@ -528,6 +582,48 @@ function handle<T>(r: Result<T>) {
 type DeepPartial<T> = T extends object
   ? { [K in keyof T]?: DeepPartial<T[K]> }
   : T;`,
+        },
+        {
+          name: '템플릿 리터럴 + infer 추출',
+          code: `// 템플릿 리터럴 안에서 infer로 패턴 매칭하여 부분 문자열을 추출합니다
+type GetRouteParam<S extends string> =
+  S extends \`\${string}:\${infer Param}/\${string}\` ? Param :
+  S extends \`\${string}:\${infer Param}\`           ? Param :
+  never;
+
+type P1 = GetRouteParam<'/users/:id/posts'>; // "id"
+type P2 = GetRouteParam<'/items/:slug'>;      // "slug"
+type P3 = GetRouteParam<'/about'>;            // never
+
+// 이벤트 이름에서 접두사 제거
+type StripOn<S extends string> =
+  S extends \`on\${infer Rest}\` ? Uncapitalize<Rest> : S;
+
+type Click = StripOn<'onClick'>; // "click"`,
+        },
+        {
+          name: '모듈 보강 (Module Augmentation)',
+          code: `// declare module: 외부 라이브러리의 타입 정의를 확장합니다
+// 예) express Request에 user 필드 추가
+import 'express';
+
+declare module 'express' {
+  interface Request {
+    user?: { id: string; role: 'admin' | 'member' };
+  }
+}
+
+// 전역 타입 보강
+declare global {
+  interface Window {
+    __APP_VERSION__: string;
+  }
+  interface Array<T> {
+    // 커스텀 배열 메서드 타입 추가 예시
+    last(): T | undefined;
+  }
+}
+export {}; // 파일이 모듈이 되도록 export 필요`,
         },
       ],
     },
@@ -738,6 +834,74 @@ function createStore<T>(initial: T, fallback: NoInfer<T>): T {
 // T는 initial에서만 추론됩니다
 const store = createStore<{ count: number } | null>(null, { count: 0 }); // fallback 사용`,
         },
+        {
+          name: 'keyof & typeof 연산자',
+          code: `// keyof: 객체 타입의 모든 키를 유니온 타입으로 추출합니다
+type User = { id: number; name: string; email: string };
+type UserKey = keyof User; // "id" | "name" | "email"
+
+// typeof: 값에서 타입을 역으로 추출합니다 (타입 레벨 typeof)
+const defaultConfig = { debug: false, timeout: 3000, env: 'dev' };
+type Config = typeof defaultConfig; // { debug: boolean; timeout: number; env: string }
+
+// 조합: 런타임 객체에서 키 타입을 동적으로 파생합니다
+type ConfigKey = keyof typeof defaultConfig; // "debug" | "timeout" | "env"
+
+function getConfig<K extends keyof typeof defaultConfig>(key: K): (typeof defaultConfig)[K] {
+  return defaultConfig[key];
+}
+const t = getConfig('timeout'); // number`,
+        },
+        {
+          name: '인덱스 접근 타입 (Indexed Access)',
+          code: `type User = { id: number; address: { city: string; zip: string } };
+
+// T[K]: 객체 타입의 특정 키 값 타입을 추출합니다
+type UserId   = User['id'];              // number
+type Address  = User['address'];         // { city: string; zip: string }
+type City     = User['address']['city']; // string
+
+// number로 배열 요소 타입 추출
+type Items = { name: string; price: number }[];
+type Item  = Items[number]; // { name: string; price: number }
+
+// 유니온 키로 여러 필드 타입 추출
+type StringFields = User['id' | 'address']; // number | { city: string; zip: string }`,
+        },
+        {
+          name: 'const 타입 매개변수 (TS 5.0)',
+          code: `// <const T>: 인수를 as const 없이 리터럴 타입으로 좁혀 추론합니다
+function identity<const T>(value: T): T {
+  return value;
+}
+
+// 일반 제네릭은 string[]로 넓게 추론하지만
+// const 타입 매개변수는 readonly ["a", "b", "c"]로 좁게 추론합니다
+const arr = identity(['a', 'b', 'c']);
+// arr: readonly ["a", "b", "c"]  (as const 없이도 리터럴 타입)
+
+function makeConfig<const T extends Record<string, unknown>>(cfg: T): T {
+  return cfg;
+}
+const cfg = makeConfig({ port: 3000, env: 'prod' });
+// cfg.port: 3000 (number literal, not number)`,
+        },
+        {
+          name: '맵드 타입 수식어 (+/- readonly, +/- ?)',
+          code: `// +readonly / -readonly: readonly 수식어를 추가하거나 제거합니다
+type Mutable<T> = { -readonly [K in keyof T]: T[K] };
+type Immutable<T> = { +readonly [K in keyof T]: T[K] };
+
+// +? / -?: 옵셔널 수식어를 추가하거나 제거합니다
+type Concrete<T> = { [K in keyof T]-?: T[K] }; // Required<T>와 동일
+type Soft<T>     = { [K in keyof T]+?: T[K] };  // Partial<T>와 동일
+
+interface Frozen { readonly x: number; readonly y: number }
+type Editable = Mutable<Frozen>; // { x: number; y: number }
+
+interface Partial2 { a?: string; b?: number }
+type Full = Concrete<Partial2>; // { a: string; b: number }`,
+        },
       ],
     },
     {
@@ -845,6 +1009,26 @@ function greet(p: Person): string {
 
 // Extend via intersection
 type AdminUser = Person & { permissions: string[] };`,
+        },
+        {
+          name: 'Array.isArray 내로잉 & 다중 가드',
+          code: `// Array.isArray: 배열/단일 값 유니온을 내로잉합니다
+function normalize<T>(value: T | T[]): T[] {
+  return Array.isArray(value) ? value : [value];
+}
+
+// 여러 조건을 조합한 복합 타입 가드
+function isNonEmptyString(val: unknown): val is string {
+  return typeof val === 'string' && val.length > 0;
+}
+
+function isRecord(val: unknown): val is Record<string, unknown> {
+  return typeof val === 'object' && val !== null && !Array.isArray(val);
+}
+
+// 사용 예
+const items = normalize('hello'); // string[]
+const arr   = normalize([1, 2]);  // number[]`,
         },
       ],
     },
@@ -967,6 +1151,30 @@ async function streamToText(stream: ReadableStream<Uint8Array>): Promise<string>
       return c;
     }, new Uint8Array(0))
   );
+}`,
+        },
+        {
+          name: '타입 안전 Promise 래퍼',
+          code: `// 제네릭으로 응답 타입을 강제하는 fetch 래퍼
+async function typedFetch<T>(
+  url: string,
+  options?: RequestInit,
+): Promise<T> {
+  const res = await fetch(url, options);
+  if (!res.ok) throw new Error(\`HTTP \${res.status}: \${res.statusText}\`);
+  return res.json() as Promise<T>;
+}
+
+// 사용: 응답 타입을 명시적으로 지정
+interface Post { id: number; title: string; body: string }
+const post = await typedFetch<Post>('https://jsonplaceholder.typicode.com/posts/1');
+
+// Promise 자체를 타입으로 다루기
+type AsyncResult<T> = Promise<{ data: T; timestamp: number }>;
+
+async function wrap<T>(fn: () => Promise<T>): AsyncResult<T> {
+  const data = await fn();
+  return { data, timestamp: Date.now() };
 }`,
         },
       ],

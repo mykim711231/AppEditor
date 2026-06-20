@@ -109,6 +109,63 @@ var m map[string]int // nil
 fmt.Println(i, f, b, s, p, sl, m)`,
         },
         {
+          name: 'time 포맷 / 파싱',
+          code: `import (
+    "fmt"
+    "time"
+)
+
+func main() {
+    now := time.Now()
+
+    // Go의 기준 시각: 2006-01-02 15:04:05 (Mon Jan 2 15:04:05 MST 2006)
+    fmt.Println(now.Format("2006-01-02 15:04:05"))         // 날짜+시각
+    fmt.Println(now.Format("2006/01/02"))                   // 날짜만
+    fmt.Println(now.Format(time.RFC3339))                   // ISO 8601
+
+    // 문자열 → time.Time 파싱
+    t, err := time.Parse("2006-01-02", "2024-03-15")
+    if err != nil {
+        fmt.Println("파싱 오류:", err)
+        return
+    }
+    fmt.Println(t.Year(), t.Month(), t.Day()) // 2024 March 15
+
+    // 시간 연산
+    tomorrow := now.Add(24 * time.Hour)
+    fmt.Println(tomorrow.Format("2006-01-02"))
+    fmt.Println(now.Before(tomorrow)) // true
+}`,
+        },
+        {
+          name: 'os.Args / flag 패키지',
+          code: `import (
+    "flag"
+    "fmt"
+    "os"
+)
+
+func main() {
+    // os.Args: 실행 파일 포함 전체 인자 슬라이스
+    fmt.Println("프로그램:", os.Args[0])
+
+    // flag: 명명된 플래그 파싱
+    name := flag.String("name", "World", "인사할 이름")   // 포인터 반환
+    count := flag.Int("count", 1, "반복 횟수")
+    verbose := flag.Bool("v", false, "상세 출력")
+
+    flag.Parse() // os.Args[1:]에서 플래그 파싱
+
+    // *name처럼 역참조해서 사용
+    for range *count {
+        fmt.Printf("Hello, %s!\\n", *name)
+    }
+    if *verbose {
+        fmt.Println("남은 인자:", flag.Args()) // 플래그 이후 나머지
+    }
+}`,
+        },
+        {
           name: '멀티 반환값',
           code: `import "fmt"
 
@@ -511,6 +568,40 @@ func main() {
     b, _ := json.Marshal(u)
     fmt.Println(string(b))
     // {"id":1,"name":"Alice"}
+}`,
+        },
+        {
+          name: 'JSON 인코딩/디코딩 (구조체·맵)',
+          code: `import (
+    "encoding/json"
+    "fmt"
+)
+
+type Article struct {
+    Title  string   \`json:"title"\`
+    Tags   []string \`json:"tags"\`
+    Views  int      \`json:"views"\`
+}
+
+func main() {
+    // 구조체 → JSON
+    a := Article{Title: "Go 입문", Tags: []string{"go", "tutorial"}, Views: 100}
+    b, _ := json.Marshal(a)
+    fmt.Println(string(b))
+
+    // JSON → 구조체 (역직렬화)
+    var a2 Article
+    json.Unmarshal(b, &a2)
+    fmt.Println(a2.Title, a2.Tags)
+
+    // JSON → map (스키마 미정 시)
+    var m map[string]any
+    json.Unmarshal(b, &m)
+    fmt.Println(m["title"], m["views"])
+
+    // 들여쓰기 출력
+    pretty, _ := json.MarshalIndent(a, "", "  ")
+    fmt.Println(string(pretty))
 }`,
         },
         {
@@ -1136,6 +1227,136 @@ func GetInstance() *Singleton {
 }`,
         },
         {
+          name: 'sync.RWMutex (읽기/쓰기 잠금)',
+          code: `import (
+    "fmt"
+    "sync"
+)
+
+// RWMutex: 읽기는 동시에 허용, 쓰기는 배타적으로 잠금
+type RWCounter struct {
+    mu    sync.RWMutex
+    count int
+}
+
+func (c *RWCounter) Inc() {
+    c.mu.Lock()         // 쓰기 잠금 (읽기/쓰기 모두 차단)
+    defer c.mu.Unlock()
+    c.count++
+}
+
+func (c *RWCounter) Value() int {
+    c.mu.RLock()         // 읽기 잠금 (다른 읽기는 허용)
+    defer c.mu.RUnlock()
+    return c.count
+}
+
+func main() {
+    c := &RWCounter{}
+    c.Inc()
+    fmt.Println(c.Value()) // 1
+}`,
+        },
+        {
+          name: 'sync/atomic (원자적 연산)',
+          code: `import (
+    "fmt"
+    "sync"
+    "sync/atomic"
+)
+
+func main() {
+    var counter int64 // atomic 연산 대상은 64비트 정렬 필요
+
+    var wg sync.WaitGroup
+    for range 1000 {
+        wg.Add(1)
+        go func() {
+            defer wg.Done()
+            atomic.AddInt64(&counter, 1) // 원자적 증가 (뮤텍스 없이 안전)
+        }()
+    }
+    wg.Wait()
+
+    fmt.Println(atomic.LoadInt64(&counter)) // 1000
+}`,
+        },
+        {
+          name: '워커 풀 (Worker Pool)',
+          code: `import (
+    "fmt"
+    "sync"
+)
+
+func workerPool(jobs <-chan int, results chan<- int, numWorkers int) {
+    var wg sync.WaitGroup
+    for range numWorkers {
+        wg.Add(1)
+        go func() {
+            defer wg.Done()
+            for j := range jobs { // jobs 채널이 닫히면 루프 종료
+                results <- j * j  // 작업 처리: 제곱 계산
+            }
+        }()
+    }
+    // 모든 워커 완료 후 결과 채널 닫기
+    go func() { wg.Wait(); close(results) }()
+}
+
+func main() {
+    jobs := make(chan int, 10)
+    results := make(chan int, 10)
+
+    workerPool(jobs, results, 3)
+
+    for i := 1; i <= 5; i++ { jobs <- i }
+    close(jobs)
+
+    for r := range results {
+        fmt.Println(r)
+    }
+}`,
+        },
+        {
+          name: 'context.WithCancel',
+          code: `import (
+    "context"
+    "fmt"
+    "time"
+)
+
+func generate(ctx context.Context) <-chan int {
+    ch := make(chan int)
+    go func() {
+        defer close(ch)
+        n := 0
+        for {
+            select {
+            case <-ctx.Done(): // cancel() 호출 시 종료
+                fmt.Println("생성기 종료:", ctx.Err())
+                return
+            case ch <- n:
+                n++
+                time.Sleep(100 * time.Millisecond)
+            }
+        }
+    }()
+    return ch
+}
+
+func main() {
+    ctx, cancel := context.WithCancel(context.Background())
+    defer cancel() // 리소스 누수 방지: 반드시 defer
+
+    for v := range generate(ctx) {
+        fmt.Println(v)
+        if v == 3 {
+            cancel() // 취소 신호 전송
+        }
+    }
+}`,
+        },
+        {
           name: 'errgroup (동시 에러 처리)',
           code: `import (
     "context"
@@ -1328,6 +1549,61 @@ func main() {
 }`,
         },
         {
+          name: 'sort.Slice / sort.SliceStable',
+          code: `import (
+    "fmt"
+    "sort"
+)
+
+type Person struct {
+    Name string
+    Age  int
+}
+
+func main() {
+    people := []Person{
+        {"Charlie", 30},
+        {"Alice", 25},
+        {"Bob", 30},
+    }
+
+    // 나이 오름차순, 같으면 이름 오름차순
+    sort.SliceStable(people, func(i, j int) bool {
+        if people[i].Age != people[j].Age {
+            return people[i].Age < people[j].Age
+        }
+        return people[i].Name < people[j].Name
+    })
+
+    for _, p := range people {
+        fmt.Printf("%s(%d)\\n", p.Name, p.Age)
+    }
+}`,
+        },
+        {
+          name: 'slices.Index / slices.Compact (Go 1.21+)',
+          code: `import (
+    "fmt"
+    "slices"
+)
+
+func main() {
+    nums := []int{1, 2, 2, 3, 3, 3, 4}
+
+    // Compact: 인접한 중복 제거 (정렬된 슬라이스에서 유일값 추출)
+    unique := slices.Compact(nums)
+    fmt.Println(unique) // [1 2 3 4]
+
+    // Index: 첫 번째로 일치하는 인덱스 반환 (없으면 -1)
+    idx := slices.Index(unique, 3)
+    fmt.Println(idx) // 2
+
+    // Reverse: 제자리 역순
+    slices.Reverse(unique)
+    fmt.Println(unique) // [4 3 2 1]
+}`,
+        },
+        {
           name: '슬라이스 필터/맵/리듀스',
           code: `import "fmt"
 
@@ -1460,6 +1736,32 @@ fmt.Println(f)
 // bool 변환
 b, _ := strconv.ParseBool("true")
 fmt.Println(b)`,
+        },
+        {
+          name: 'bufio.Scanner (stdin 한 줄씩 읽기)',
+          code: `import (
+    "bufio"
+    "fmt"
+    "os"
+    "strings"
+)
+
+func main() {
+    scanner := bufio.NewScanner(os.Stdin) // 표준 입력에서 줄 단위 스캔
+
+    fmt.Println("입력하세요 (빈 줄로 종료):")
+    for scanner.Scan() {         // Scan()은 한 줄 읽고 true 반환; EOF면 false
+        line := scanner.Text()   // 현재 줄 문자열 (개행 제외)
+        if strings.TrimSpace(line) == "" {
+            break
+        }
+        fmt.Println("입력:", line)
+    }
+
+    if err := scanner.Err(); err != nil {
+        fmt.Fprintln(os.Stderr, "읽기 오류:", err)
+    }
+}`,
         },
         {
           name: '정규표현식',
@@ -1709,6 +2011,147 @@ func main() {
     type Cfg struct{ Debug *bool }
     cfg := Cfg{Debug: Ptr(true)}
     fmt.Println(*cfg.Debug)
+}`,
+        },
+      ],
+    },
+    {
+      title: '테스트',
+      items: [
+        {
+          name: '테이블 기반 테스트 (testing.T)',
+          code: `package main
+
+import "testing"
+
+func Add(a, b int) int { return a + b }
+
+// 파일명: add_test.go  →  go test ./...
+func TestAdd(t *testing.T) {
+    // 테이블: 여러 케이스를 하나의 함수로 관리
+    tests := []struct {
+        name     string
+        a, b     int
+        expected int
+    }{
+        {"양수+양수", 1, 2, 3},
+        {"음수+양수", -1, 1, 0},
+        {"제로", 0, 0, 0},
+    }
+
+    for _, tc := range tests {
+        t.Run(tc.name, func(t *testing.T) { // 서브테스트: -run=TestAdd/양수 로 개별 실행 가능
+            got := Add(tc.a, tc.b)
+            if got != tc.expected {
+                t.Errorf("Add(%d,%d) = %d; want %d", tc.a, tc.b, got, tc.expected)
+            }
+        })
+    }
+}`,
+        },
+        {
+          name: '벤치마크 (testing.B)',
+          code: `package main
+
+import (
+    "strings"
+    "testing"
+)
+
+// 파일명: xxx_test.go  →  go test -bench=. -benchmem
+func BenchmarkBuilder(b *testing.B) {
+    // b.N: 벤치마크 프레임워크가 자동으로 조정하는 반복 횟수
+    for range b.N {
+        var sb strings.Builder
+        for i := range 100 {
+            sb.WriteString("x")
+            _ = i
+        }
+        _ = sb.String()
+    }
+}
+
+func BenchmarkConcat(b *testing.B) {
+    for range b.N {
+        s := ""
+        for range 100 {
+            s += "x" // 매번 새 문자열 할당 → 느림
+        }
+        _ = s
+    }
+}`,
+        },
+      ],
+    },
+    {
+      title: 'HTTP',
+      items: [
+        {
+          name: 'HTTP 클라이언트 (타임아웃)',
+          code: `import (
+    "context"
+    "encoding/json"
+    "fmt"
+    "net/http"
+    "time"
+)
+
+func fetchJSON(url string, out any) error {
+    // 타임아웃 있는 클라이언트: http.DefaultClient 직접 사용 금지
+    client := &http.Client{Timeout: 10 * time.Second}
+
+    ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+    defer cancel()
+
+    req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
+    if err != nil {
+        return fmt.Errorf("요청 생성: %w", err)
+    }
+
+    resp, err := client.Do(req)
+    if err != nil {
+        return fmt.Errorf("요청 실행: %w", err)
+    }
+    defer resp.Body.Close()
+
+    if resp.StatusCode != http.StatusOK {
+        return fmt.Errorf("HTTP %d", resp.StatusCode)
+    }
+    return json.NewDecoder(resp.Body).Decode(out) // 스트리밍 디코드
+}`,
+        },
+        {
+          name: 'HTTP 서버 (ServeMux)',
+          code: `import (
+    "encoding/json"
+    "fmt"
+    "log"
+    "net/http"
+)
+
+// Go 1.22: ServeMux가 메서드·경로변수 지원
+func main() {
+    mux := http.NewServeMux()
+
+    // GET /hello/{name}: 경로 변수 추출
+    mux.HandleFunc("GET /hello/{name}", func(w http.ResponseWriter, r *http.Request) {
+        name := r.PathValue("name") // Go 1.22 신규 메서드
+        fmt.Fprintf(w, "Hello, %s!", name)
+    })
+
+    // POST /api/echo: JSON 에코
+    mux.HandleFunc("POST /api/echo", func(w http.ResponseWriter, r *http.Request) {
+        var body map[string]any
+        if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+            http.Error(w, err.Error(), http.StatusBadRequest)
+            return
+        }
+        w.Header().Set("Content-Type", "application/json")
+        json.NewEncoder(w).Encode(body)
+    })
+
+    log.Println("서버 시작 :8080")
+    log.Fatal(http.ListenAndServe(":8080", mux))
 }`,
         },
       ],
