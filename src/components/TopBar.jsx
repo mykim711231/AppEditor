@@ -43,7 +43,6 @@ export default function TopBar() {
             {[
               ['search', '🔍 검색', 'search'],
               ['github', '🐙 GitHub 연동', 'github'],
-              ['snippets', '🧩 스니펫', 'snippets'],
               ['history', '🕘 AI 히스토리', 'history'],
               ['settings', '⚙️ 설정', 'settings'],
             ].map(([key, label, modal]) => (

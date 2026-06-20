@@ -14,7 +14,8 @@ import {
   arrayMove,
 } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
-import { useStore, uiPrompt, uiConfirm } from '../store'
+import { useStore, uiConfirm } from '../store'
+import TextInput from './ui/TextInput'
 
 // 드래그로 순서 변경되는 AI 행
 function SortableAIRow({ ai, selected, onSelect }) {
@@ -65,6 +66,8 @@ export default function AISelector() {
 
   const [busy, setBusy] = useState(false)
   const [toast, setToast] = useState('')
+  const [showAdd, setShowAdd] = useState(false)
+  const [form, setForm] = useState({ name: '', url: 'https://', icon: '🤖' })
 
   const currentId = selectedAiId && ais.some((a) => a.id === selectedAiId) ? selectedAiId : ais[0]?.id
   const current = ais.find((a) => a.id === currentId)
@@ -94,13 +97,14 @@ export default function AISelector() {
     }
   }
 
-  const onAdd = async () => {
-    const name = await uiPrompt({ title: 'AI 추가', placeholder: '이름 (예: MyAI)' })
-    if (!name || !name.trim()) return
-    const url = await uiPrompt({ title: 'AI URL', defaultValue: 'https://', placeholder: 'https://...' })
-    if (!url || !url.trim()) return
-    const icon = (await uiPrompt({ title: '아이콘 이모지', defaultValue: '🤖' })) || '🤖'
-    addAI({ name: name.trim(), url: url.trim(), icon: icon.trim() })
+  const onSubmitAdd = () => {
+    const name = form.name.trim()
+    let url = form.url.trim()
+    if (!name || !url) return flash('이름과 URL을 입력하세요')
+    if (!/^https?:\/\//i.test(url)) url = 'https://' + url
+    addAI({ name, url, icon: form.icon.trim() || '🤖' })
+    setForm({ name: '', url: 'https://', icon: '🤖' })
+    setShowAdd(false)
   }
 
   const onRemove = async () => {
@@ -124,7 +128,7 @@ export default function AISelector() {
         </span>
         <div className="flex gap-1">
           <button
-            onClick={onAdd}
+            onClick={() => setShowAdd((v) => !v)}
             title="AI 추가"
             className="rounded px-1.5 py-0.5 text-xs hover:bg-slate-200 dark:hover:bg-slate-700"
           >
@@ -154,6 +158,49 @@ export default function AISelector() {
           </option>
         ))}
       </select>
+
+      {/* AI 추가 폼 (이름 + URL + 아이콘 한 번에) */}
+      {showAdd && (
+        <div className="mb-2 space-y-1.5 rounded-lg border border-slate-200 p-2 dark:border-slate-700">
+          <div className="flex gap-1.5">
+            <TextInput
+              value={form.icon}
+              onChange={(v) => setForm((f) => ({ ...f, icon: v }))}
+              placeholder="🤖"
+              className="w-12 rounded border border-slate-300 bg-white px-2 py-1 text-center text-sm dark:border-slate-600 dark:bg-slate-800 dark:text-white"
+            />
+            <TextInput
+              value={form.name}
+              onChange={(v) => setForm((f) => ({ ...f, name: v }))}
+              placeholder="이름 (예: MyAI)"
+              className="min-w-0 flex-1 rounded border border-slate-300 bg-white px-2 py-1 text-sm dark:border-slate-600 dark:bg-slate-800 dark:text-white"
+            />
+          </div>
+          <TextInput
+            value={form.url}
+            onChange={(v) => setForm((f) => ({ ...f, url: v }))}
+            placeholder="채팅 페이지 URL (https://...)"
+            className="w-full rounded border border-slate-300 bg-white px-2 py-1 text-sm dark:border-slate-600 dark:bg-slate-800 dark:text-white"
+          />
+          <p className="text-[10px] text-slate-400">
+            ※ 로그인해서 붙여넣기 할 수 있는 AI 채팅 페이지 주소여야 합니다.
+          </p>
+          <div className="flex gap-1.5">
+            <button
+              onClick={onSubmitAdd}
+              className="flex-1 rounded-lg bg-blue-600 py-1.5 text-xs font-medium text-white"
+            >
+              추가
+            </button>
+            <button
+              onClick={() => setShowAdd(false)}
+              className="rounded-lg border border-slate-300 px-3 text-xs dark:border-slate-600 dark:text-slate-300"
+            >
+              취소
+            </button>
+          </div>
+        </div>
+      )}
 
       <button
         onClick={onSend}

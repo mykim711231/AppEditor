@@ -67,8 +67,6 @@ export const useStore = create((set, get) => ({
 
   settings: { ...DEFAULT_SETTINGS, ...LS.get('settings', {}) },
   ais: LS.get('ais', DEFAULT_AIS),
-  snippets: LS.get('snippets', []),
-
   // ---- AI 질의 공유 상태 (질문 바: 하단 / AI 선택: 사이드바) ----
   aiQuestion: '',
   aiScope: 'selection', // 'selection' | 'all'
@@ -79,7 +77,7 @@ export const useStore = create((set, get) => ({
   sidebarOpen: typeof window !== 'undefined' ? window.innerWidth >= 768 : true,
   barsHidden: false, // 👁 집중 모드
   aiPanelOpen: false,
-  activeModal: null, // 'settings' | 'snippets' | 'history' | 'search' | null
+  activeModal: null, // 'settings' | 'history' | 'search' | 'github' | null
   menuOpen: false, // 좌상단 ≡ 메뉴
   mdPreview: false, // 마크다운 미리보기 토글
   dialog: null, // 인앱 다이얼로그 (prompt/confirm/alert)
@@ -302,31 +300,8 @@ export const useStore = create((set, get) => ({
     })
   },
 
-  // ---- 스니펫 ----
-  addSnippet(name, code) {
-    set((s) => {
-      const snippets = [...s.snippets, { id: uid(), name, code }]
-      LS.set('snippets', snippets)
-      return { snippets }
-    })
-  },
-  updateSnippet(id, patch) {
-    set((s) => {
-      const snippets = s.snippets.map((sn) => (sn.id === id ? { ...sn, ...patch } : sn))
-      LS.set('snippets', snippets)
-      return { snippets }
-    })
-  },
-  removeSnippet(id) {
-    set((s) => {
-      const snippets = s.snippets.filter((sn) => sn.id !== id)
-      LS.set('snippets', snippets)
-      return { snippets }
-    })
-  },
-
   // ---- 백업 스냅샷 (Google Drive 연동용) ----
-  // 현재 파일/스니펫/AI 목록을 하나의 JSON 객체로 직렬화
+  // 현재 파일/AI 목록을 하나의 JSON 객체로 직렬화
   getSnapshot() {
     const s = get()
     return {
@@ -334,7 +309,6 @@ export const useStore = create((set, get) => ({
       version: 1,
       exportedAt: Date.now(),
       nodes: s.nodes,
-      snippets: s.snippets,
       ais: s.ais,
     }
   },
@@ -365,10 +339,6 @@ export const useStore = create((set, get) => ({
       openTabs: firstFile ? [firstFile.id] : [],
       activeTab: firstFile ? firstFile.id : null,
     })
-    if (Array.isArray(data.snippets)) {
-      LS.set('snippets', data.snippets)
-      set({ snippets: data.snippets })
-    }
     if (Array.isArray(data.ais) && data.ais.length) {
       LS.set('ais', data.ais)
       set({ ais: data.ais })

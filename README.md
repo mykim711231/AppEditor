@@ -35,7 +35,6 @@
 - 토큰은 이 기기 localStorage에만 저장 (공용 기기 주의)
 
 ### 부가 기능
-- 코드 스니펫 저장·삽입·관리 (localStorage)
 - AI 질문 히스토리 검색·삭제 (IndexedDB)
 - 좌상단 툴바(≡ 메뉴 / ▭ 사이드 토글 / 🔍 검색), 전체 파일 검색(이름+내용)
 - 메뉴 숨김(👁 집중 모드), 스와이프로 AI 패널 토글, 단축키(Cmd+B 사이드 / Cmd+P 검색 / Esc 집중)
@@ -90,7 +89,7 @@ npm run icons      # SVG로부터 PWA 아이콘(PNG) 재생성
 
 - API 키 불필요 (브라우저 OAuth 토큰만 사용), 접근 범위 `drive.file`(앱이 만든 파일만)
 - 일반 브라우저는 팝업 로그인, **설치형 앱은 전체 페이지 리다이렉트 로그인**(팝업 차단 회피)
-- 백업은 Drive에 `appeditor-backup.json` 1개로 저장(파일·스니펫·AI 목록 포함)
+- 백업은 Drive에 `appeditor-backup.json` 1개로 저장(파일·AI 목록 포함)
 - "편집 시 자동 백업" 켜면 저장 위치가 Google Drive일 때 변경분을 자동 업로드
 
 ---
@@ -100,16 +99,19 @@ npm run icons      # SVG로부터 PWA 아이콘(PNG) 재생성
 ```
 src/
 ├── App.jsx              레이아웃·단축키·스와이프
-├── store.js            zustand 전역 상태 (파일/탭/설정/AI/스니펫)
+├── store.js            zustand 전역 상태 (파일/탭/설정/AI)
 ├── lib/
 │   ├── db.js           IndexedDB (파일·히스토리)
 │   ├── ai.js           AI 목록·클립보드 전송
+│   ├── gdrive.js       Google Drive (OAuth·백업/복원)
+│   ├── github.js       GitHub pull/push
 │   ├── languages.js    확장자→언어 자동 감지
 │   └── id.js           UID 생성
 └── components/
-    ├── TopBar.jsx  Tabs.jsx  Editor.jsx
-    ├── FileExplorer.jsx  AIBar.jsx
-    └── Settings.jsx  Snippets.jsx  History.jsx  Modal.jsx
+    ├── TopBar.jsx  Tabs.jsx  Editor.jsx  MarkdownView.jsx
+    ├── FileExplorer.jsx  AISelector.jsx  QuestionBar.jsx
+    ├── SearchModal.jsx  GitHubModal.jsx  DialogHost.jsx
+    └── Settings.jsx  History.jsx  Modal.jsx  ui/TextInput.jsx
 ```
 
 ---

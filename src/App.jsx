@@ -8,7 +8,6 @@ import FileExplorer from './components/FileExplorer'
 import AISelector from './components/AISelector'
 import QuestionBar from './components/QuestionBar'
 import Settings from './components/Settings'
-import Snippets from './components/Snippets'
 import History from './components/History'
 import SearchModal from './components/SearchModal'
 import GitHubModal from './components/GitHubModal'
@@ -154,7 +153,6 @@ export default function App() {
 
       {/* 모달 */}
       {activeModal === 'settings' && <Settings />}
-      {activeModal === 'snippets' && <Snippets />}
       {activeModal === 'history' && <History />}
       {activeModal === 'search' && <SearchModal />}
       {activeModal === 'github' && <GitHubModal />}
