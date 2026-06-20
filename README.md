@@ -3,7 +3,7 @@
 > 앱스토어·개발자 계정·API 키 없이 **아이폰 8**과 **삼성 갤럭시 태블릿**에서
 > 코드 작성, 괄호 확인, 멀티 AI 문의를 하나로 사용하는 **PWA 코드 에디터**.
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
+[![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](./LICENSE)
 
 한국어 UI 전용 · 완전 무료 운영 · 오프라인 편집 지원
 
@@ -63,12 +63,13 @@ npm run preview    # 빌드 결과 미리보기
 npm run icons      # SVG로부터 PWA 아이콘(PNG) 재생성
 ```
 
-### 배포 (Vercel)
-1. https://vercel.com 에서 이 저장소를 Import
-2. 프레임워크 자동 감지(Vite) — 빌드 명령 `npm run build`, 출력 `dist`
-3. Deploy → 자동 HTTPS PWA 배포 완료
+### 배포 (GitHub Pages — git push 자동 배포)
+`main` 브랜치에 push 하면 [GitHub Actions 워크플로](./.github/workflows/deploy.yml)가
+빌드 후 GitHub Pages 로 자동 배포합니다. 별도 외부 서비스 불필요.
 
-> SPA 라우팅은 [vercel.json](./vercel.json) 의 rewrite로 처리됩니다.
+- 배포 주소: **https://mykim711231.github.io/AppEditor/**
+- Pages 소스: 저장소 Settings → Pages → Source = **GitHub Actions** (최초 1회, gh CLI로 설정됨)
+- 빌드 경로(base)는 `/AppEditor/`. 사용자 도메인/루트 배포 시 `BASE=/ npm run build` 로 변경 가능.
 
 ### Google Drive 연동(선택)
 [.env.example](./.env.example) 를 `.env`로 복사하고 `VITE_GOOGLE_CLIENT_ID`를
@@ -102,4 +103,4 @@ src/
 ---
 
 ## 📄 라이선스
-[MIT](./LICENSE) © 2026 mykim711231
+[Apache License 2.0](./LICENSE) © 2026 mykim711231

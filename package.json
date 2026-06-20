@@ -4,7 +4,7 @@
   "version": "1.0.0",
   "type": "module",
   "description": "모바일 코드 에디터 PWA — 앱스토어 없이 아이폰·갤럭시 태블릿에서 코드 작성·멀티 AI 문의",
-  "license": "MIT",
+  "license": "Apache-2.0",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
