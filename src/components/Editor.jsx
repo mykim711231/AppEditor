@@ -1,11 +1,12 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import CodeMirror from '@uiw/react-codemirror'
 import { oneDark } from '@codemirror/theme-one-dark'
-import { EditorView } from '@codemirror/view'
+import { EditorView, rectangularSelection, crosshairCursor } from '@codemirror/view'
 import { lintGutter } from '@codemirror/lint'
 import { useStore } from '../store'
 import { loadLanguageExtension } from '../lib/languages'
 import { codeLinter } from '../lib/lint'
+import EditorToolbar from './EditorToolbar'
 
 export default function Editor({ onSelectionChange }) {
   const nodes = useStore((s) => s.nodes)
@@ -76,6 +77,9 @@ export default function Editor({ onSelectionChange }) {
   const extensions = useMemo(() => {
     const exts = [
       EditorView.lineWrapping,
+      // 열(블록) 편집: Alt+드래그 사각 선택 (데스크톱/DeX)
+      rectangularSelection(),
+      crosshairCursor(),
       // 언어별 문법/규칙 검증 (JSON 정밀 · JS ESLint · Python 들여쓰기 · 그 외 구문)
       lintGutter(),
       codeLinter,
@@ -112,27 +116,32 @@ export default function Editor({ onSelectionChange }) {
   }
 
   return (
-    <CodeMirror
-      key={file.id}
-      value={file.content}
-      theme={settings.theme === 'dark' ? oneDark : 'light'}
-      extensions={extensions}
-      onChange={(value) => save(file.id, value)}
-      onCreateEditor={(view) => {
-        viewRef.current = view
-      }}
-      basicSetup={{
-        lineNumbers: true,
-        highlightActiveLine: true,
-        bracketMatching: true,
-        closeBrackets: true,
-        autocompletion: true,
-        foldGutter: true,
-        highlightSelectionMatches: true,
-        searchKeymap: true,
-      }}
-      height="100%"
-      style={{ height: '100%' }}
-    />
+    <div className="flex h-full flex-col">
+      <EditorToolbar viewRef={viewRef} onSave={flush} />
+      <div className="min-h-0 flex-1">
+        <CodeMirror
+          key={file.id}
+          value={file.content}
+          theme={settings.theme === 'dark' ? oneDark : 'light'}
+          extensions={extensions}
+          onChange={(value) => save(file.id, value)}
+          onCreateEditor={(view) => {
+            viewRef.current = view
+          }}
+          basicSetup={{
+            lineNumbers: true,
+            highlightActiveLine: true,
+            bracketMatching: true,
+            closeBrackets: true,
+            autocompletion: true,
+            foldGutter: true,
+            highlightSelectionMatches: true,
+            searchKeymap: true,
+          }}
+          height="100%"
+          style={{ height: '100%' }}
+        />
+      </div>
+    </div>
   )
 }
