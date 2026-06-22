@@ -26,6 +26,11 @@ export const SETUP_GUIDES = [
         powershell: `winget --version`,
         wsl: `# winget은 Windows 전용입니다`,
       },
+      {
+        title: 'VSCode 설치 (winget)',
+        powershell: `winget install -e --id Microsoft.VisualStudioCode`,
+        wsl: `# Windows에서 VSCode 설치 후 WSL 터미널에서 "code ." 로 실행 가능\n# Remote - WSL 확장이 자동 설치됨`,
+      },
     ],
   },
   {
@@ -58,6 +63,11 @@ export const SETUP_GUIDES = [
         powershell: `node --version\nnpm --version`,
         wsl: `node --version && npm --version`,
       },
+      {
+        title: 'VSCode 확장팩 설치 (JS/TS 개발)',
+        powershell: `code --install-extension esbenp.prettier-vscode\ncode --install-extension dbaeumer.vscode-eslint`,
+        wsl: `code --install-extension esbenp.prettier-vscode\ncode --install-extension dbaeumer.vscode-eslint\n# WSL 원격 개발\ncode --install-extension ms-vscode-remote.remote-wsl`,
+      },
     ],
   },
   {
@@ -79,6 +89,16 @@ export const SETUP_GUIDES = [
       { title: '패키지 설치', powershell: `pip install requests`, wsl: `pip3 install requests` },
       { title: '실행', powershell: `python app.py`, wsl: `python3 app.py` },
       { title: 'REPL (대화형)', powershell: `python`, wsl: `python3` },
+      {
+        title: 'VSCode 확장팩 설치',
+        powershell: `# Python 확장 (Pylance·Debugger 포함)\ncode --install-extension ms-python.python\n# Jupyter 노트북 지원\ncode --install-extension ms-toolsai.jupyter`,
+        wsl: `code --install-extension ms-python.python\ncode --install-extension ms-toolsai.jupyter\n# WSL 원격 개발\ncode --install-extension ms-vscode-remote.remote-wsl`,
+      },
+      {
+        title: 'Shift+Ctrl+P 주요 명령',
+        powershell: `# Shift+Ctrl+P 를 누른 뒤 아래 명령 입력:\n#\n# Python: Select Interpreter       — 가상환경·버전 선택\n# Python: Run Python File in Terminal — 현재 파일 실행\n# Python: Create Terminal           — venv 활성화된 터미널 열기\n# Jupyter: Create New Notebook      — 노트북 생성`,
+        wsl: `# Shift+Ctrl+P 를 누른 뒤 아래 명령 입력:\n#\n# Python: Select Interpreter       — 가상환경·버전 선택\n# Python: Run Python File in Terminal — 현재 파일 실행\n# Python: Create Terminal           — venv 활성화된 터미널 열기\n# Remote-WSL: New WSL Window        — WSL 창 열기`,
+      },
     ],
   },
   {
@@ -112,6 +132,16 @@ export const SETUP_GUIDES = [
         powershell: `mvn compile exec:java "-Dexec.mainClass=com.example.Main"`,
         wsl: `mvn compile exec:java -Dexec.mainClass=com.example.Main`,
       },
+      {
+        title: 'VSCode 확장팩 설치',
+        powershell: `# Extension Pack for Java (Language Support·Debugger·Maven·Test Runner 포함)\ncode --install-extension vscjava.vscode-java-pack`,
+        wsl: `code --install-extension vscjava.vscode-java-pack\n# WSL 원격 개발\ncode --install-extension ms-vscode-remote.remote-wsl`,
+      },
+      {
+        title: 'Shift+Ctrl+P 주요 명령',
+        powershell: `# Shift+Ctrl+P 를 누른 뒤 아래 명령 입력:\n#\n# Java: Create Java Project         — 새 프로젝트 생성\n# Java: Run                         — 현재 파일 실행\n# Java: Debug                       — 디버그 시작\n# Java: Clean Language Server Workspace — LS 캐시 초기화`,
+        wsl: `# Shift+Ctrl+P 를 누른 뒤 아래 명령 입력:\n#\n# Java: Create Java Project         — 새 프로젝트 생성\n# Java: Run                         — 현재 파일 실행\n# Java: Debug                       — 디버그 시작\n# Java: Clean Language Server Workspace — LS 캐시 초기화`,
+      },
     ],
   },
   {
@@ -133,6 +163,16 @@ export const SETUP_GUIDES = [
       },
       { title: 'npm 스크립트 실행', powershell: `npm run dev`, wsl: `npm run dev` },
       { title: 'REPL', powershell: `node`, wsl: `node` },
+      {
+        title: 'VSCode 확장팩 설치',
+        powershell: `# Prettier (코드 포맷터)\ncode --install-extension esbenp.prettier-vscode\n# ESLint (코드 품질 검사)\ncode --install-extension dbaeumer.vscode-eslint`,
+        wsl: `code --install-extension esbenp.prettier-vscode\ncode --install-extension dbaeumer.vscode-eslint\n# WSL 원격 개발\ncode --install-extension ms-vscode-remote.remote-wsl`,
+      },
+      {
+        title: 'Shift+Ctrl+P 주요 명령',
+        powershell: `# Shift+Ctrl+P 를 누른 뒤 아래 명령 입력:\n#\n# Format Document                   — Prettier로 파일 포맷\n# ESLint: Fix all Auto-fixable Problems — ESLint 자동 수정\n# npm: Run Script                   — package.json 스크립트 실행`,
+        wsl: `# Shift+Ctrl+P 를 누른 뒤 아래 명령 입력:\n#\n# Format Document                   — Prettier로 파일 포맷\n# ESLint: Fix all Auto-fixable Problems — ESLint 자동 수정\n# npm: Run Script                   — package.json 스크립트 실행`,
+      },
     ],
   },
   {
@@ -157,6 +197,16 @@ export const SETUP_GUIDES = [
         powershell: `tsc --init`,
         wsl: `tsc --init`,
       },
+      {
+        title: 'VSCode 확장팩 설치',
+        powershell: `# TypeScript Nightly (최신 언어 서비스)\ncode --install-extension ms-vscode.vscode-typescript-next\n# Prettier\ncode --install-extension esbenp.prettier-vscode`,
+        wsl: `code --install-extension ms-vscode.vscode-typescript-next\ncode --install-extension esbenp.prettier-vscode\n# WSL 원격 개발\ncode --install-extension ms-vscode-remote.remote-wsl`,
+      },
+      {
+        title: 'Shift+Ctrl+P 주요 명령',
+        powershell: `# Shift+Ctrl+P 를 누른 뒤 아래 명령 입력:\n#\n# TypeScript: Restart TS Server     — TS 서버 재시작 (오류 초기화)\n# TypeScript: Select TypeScript Version — 프로젝트 내 tsc 버전 선택\n# TypeScript: Go to Source Definition — 타입 정의 대신 구현 코드로 이동\n# Format Document                   — Prettier로 파일 포맷`,
+        wsl: `# Shift+Ctrl+P 를 누른 뒤 아래 명령 입력:\n#\n# TypeScript: Restart TS Server     — TS 서버 재시작 (오류 초기화)\n# TypeScript: Select TypeScript Version — 프로젝트 내 tsc 버전 선택\n# TypeScript: Go to Source Definition — 타입 정의 대신 구현 코드로 이동\n# Format Document                   — Prettier로 파일 포맷`,
+      },
     ],
   },
   {
@@ -178,6 +228,16 @@ export const SETUP_GUIDES = [
       { title: '실행', powershell: `dotnet run`, wsl: `dotnet run` },
       { title: '패키지 추가', powershell: `dotnet add package Newtonsoft.Json`, wsl: `dotnet add package Newtonsoft.Json` },
       { title: '릴리스 빌드', powershell: `dotnet build -c Release`, wsl: `dotnet build -c Release` },
+      {
+        title: 'VSCode 확장팩 설치',
+        powershell: `# C# Dev Kit (언어 서비스·Debugger·Test Explorer 포함)\ncode --install-extension ms-dotnettools.csdevkit`,
+        wsl: `code --install-extension ms-dotnettools.csdevkit\n# WSL 원격 개발\ncode --install-extension ms-vscode-remote.remote-wsl`,
+      },
+      {
+        title: 'Shift+Ctrl+P 주요 명령',
+        powershell: `# Shift+Ctrl+P 를 누른 뒤 아래 명령 입력:\n#\n# .NET: Generate Assets for Build and Debug — launch.json·tasks.json 생성\n# .NET: New Project                  — 새 프로젝트 생성\n# C#: Restart Language Server        — 언어 서버 재시작\n# NuGet: Add Package                 — NuGet 패키지 추가`,
+        wsl: `# Shift+Ctrl+P 를 누른 뒤 아래 명령 입력:\n#\n# .NET: Generate Assets for Build and Debug — launch.json·tasks.json 생성\n# .NET: New Project                  — 새 프로젝트 생성\n# C#: Restart Language Server        — 언어 서버 재시작\n# NuGet: Add Package                 — NuGet 패키지 추가`,
+      },
     ],
   },
   {
@@ -199,6 +259,16 @@ export const SETUP_GUIDES = [
       { title: '실행', powershell: `go run main.go`, wsl: `go run main.go` },
       { title: '빌드', powershell: `go build -o app.exe`, wsl: `go build -o app` },
       { title: '패키지 추가', powershell: `go get github.com/google/uuid`, wsl: `go get github.com/google/uuid` },
+      {
+        title: 'VSCode 확장팩 설치',
+        powershell: `# Go 공식 확장 (gopls·Delve Debugger·테스트 탐색기 포함)\ncode --install-extension golang.go`,
+        wsl: `code --install-extension golang.go\n# WSL 원격 개발\ncode --install-extension ms-vscode-remote.remote-wsl`,
+      },
+      {
+        title: 'Shift+Ctrl+P 주요 명령',
+        powershell: `# Shift+Ctrl+P 를 누른 뒤 아래 명령 입력:\n#\n# Go: Install/Update Tools          — gopls·dlv 등 필수 도구 설치 (첫 설치 후 반드시 실행)\n# Go: Add Import                    — 패키지 import 자동 추가\n# Go: Test Function At Cursor       — 커서 위치 테스트 함수 실행\n# Go: Generate Interface Stubs      — 인터페이스 구현 스텁 생성`,
+        wsl: `# Shift+Ctrl+P 를 누른 뒤 아래 명령 입력:\n#\n# Go: Install/Update Tools          — gopls·dlv 등 필수 도구 설치 (첫 설치 후 반드시 실행)\n# Go: Add Import                    — 패키지 import 자동 추가\n# Go: Test Function At Cursor       — 커서 위치 테스트 함수 실행\n# Go: Generate Interface Stubs      — 인터페이스 구현 스텁 생성`,
+      },
     ],
   },
 ]
