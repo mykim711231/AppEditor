@@ -9,6 +9,7 @@ import { loadLanguageExtension } from '../lib/languages'
 import { codeLinter } from '../lib/lint'
 import { setEditorView } from '../lib/editorRef'
 import EditorToolbar from './EditorToolbar'
+import { makeLocalCompletion } from '../lib/localCompletion'
 
 // 찾기·바꾸기 패널 한국어화
 const koreanPhrases = EditorState.phrases.of({
@@ -123,10 +124,12 @@ export default function Editor({ onSelectionChange }) {
           }
         }
       }),
+      // 로컬 파싱 기반 자동완성 (파일 내 심벌 + 언어 키워드)
+      makeLocalCompletion(file?.name),
     ]
     if (langExt) exts.push(langExt)
     return exts
-  }, [langExt, onSelectionChange])
+  }, [langExt, onSelectionChange, file?.name])
 
   if (!file) {
     return (
@@ -169,7 +172,7 @@ export default function Editor({ onSelectionChange }) {
             highlightActiveLine: true,
             bracketMatching: true,
             closeBrackets: true,
-            autocompletion: true,
+            autocompletion: false, // makeLocalCompletion 으로 대체
             foldGutter: true,
             highlightSelectionMatches: true,
             searchKeymap: true,
