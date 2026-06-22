@@ -31,6 +31,11 @@ export const SETUP_GUIDES = [
         powershell: `winget install -e --id Microsoft.VisualStudioCode`,
         wsl: `# Windows에서 VSCode 설치 후 WSL 터미널에서 "code ." 로 실행 가능\n# Remote - WSL 확장이 자동 설치됨`,
       },
+      {
+        title: 'Shift+Ctrl+P 주요 명령 (VSCode 공통)',
+        powershell: `# Shift+Ctrl+P 를 누른 뒤 아래 명령 입력:\n#\n# Extensions: Install Extensions    — 확장 검색·설치\n# Preferences: Open Settings (JSON) — 설정 파일 직접 편집\n# Preferences: Open Keyboard Shortcuts — 단축키 설정\n# Developer: Reload Window          — VSCode 창 새로고침`,
+        wsl: `# Shift+Ctrl+P 를 누른 뒤 아래 명령 입력:\n#\n# Extensions: Install Extensions    — 확장 검색·설치\n# Preferences: Open Settings (JSON) — 설정 파일 직접 편집\n# Preferences: Open Keyboard Shortcuts — 단축키 설정\n# Remote-WSL: New WSL Window        — WSL 연결 창 열기`,
+      },
     ],
   },
   {
@@ -68,6 +73,11 @@ export const SETUP_GUIDES = [
         powershell: `code --install-extension esbenp.prettier-vscode\ncode --install-extension dbaeumer.vscode-eslint`,
         wsl: `code --install-extension esbenp.prettier-vscode\ncode --install-extension dbaeumer.vscode-eslint\n# WSL 원격 개발\ncode --install-extension ms-vscode-remote.remote-wsl`,
       },
+      {
+        title: 'Shift+Ctrl+P 주요 명령',
+        powershell: `# Shift+Ctrl+P 를 누른 뒤 아래 명령 입력:\n#\n# npm: Run Script                   — package.json 스크립트 선택 실행\n# Node.js: Attach to Node Process   — 실행 중인 Node 프로세스 디버그 연결\n# Format Document                   — Prettier 포맷 적용\n# ESLint: Fix all Auto-fixable Problems — ESLint 자동 수정`,
+        wsl: `# Shift+Ctrl+P 를 누른 뒤 아래 명령 입력:\n#\n# npm: Run Script                   — package.json 스크립트 선택 실행\n# Node.js: Attach to Node Process   — 실행 중인 Node 프로세스 디버그 연결\n# Format Document                   — Prettier 포맷 적용\n# ESLint: Fix all Auto-fixable Problems — ESLint 자동 수정`,
+      },
     ],
   },
   {
@@ -89,6 +99,16 @@ export const SETUP_GUIDES = [
       { title: '패키지 설치', powershell: `pip install requests`, wsl: `pip3 install requests` },
       { title: '실행', powershell: `python app.py`, wsl: `python3 app.py` },
       { title: 'REPL (대화형)', powershell: `python`, wsl: `python3` },
+      {
+        title: 'uv 설치 (빠른 패키지 관리자)',
+        powershell: `# winget으로 설치 (권장)\nwinget install -e --id astral-sh.uv\n# 또는 스크립트로 직접 설치\npowershell -c "irm https://astral.sh/uv/install.ps1 | iex"`,
+        wsl: `curl -LsSf https://astral.sh/uv/install.sh | sh\nsource ~/.bashrc`,
+      },
+      {
+        title: 'uv 사용법',
+        powershell: `# Python 직접 설치 (Python 없어도 됨)\nuv python install 3.12\n# 가상환경 생성\nuv venv\n# 패키지 설치 (pip보다 빠름)\nuv pip install requests\n# 스크립트 바로 실행\nuv run app.py\n# 새 프로젝트 초기화\nuv init myproject`,
+        wsl: `uv python install 3.12\nuv venv\nuv pip install requests\nuv run app.py\nuv init myproject`,
+      },
       {
         title: 'VSCode 확장팩 설치',
         powershell: `# Python 확장 (Pylance·Debugger 포함)\ncode --install-extension ms-python.python\n# Jupyter 노트북 지원\ncode --install-extension ms-toolsai.jupyter`,
