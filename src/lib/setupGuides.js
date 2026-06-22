@@ -2,6 +2,65 @@
 // 각 step: { title, powershell, wsl }
 export const SETUP_GUIDES = [
   {
+    lang: 'winget 설치',
+    key: 'winget',
+    version: 'Windows 패키지 관리자 (Windows 10/11)',
+    steps: [
+      {
+        title: '설치 여부 확인',
+        powershell: `winget --version\n# 명령을 찾을 수 없으면 아래 방법으로 설치`,
+        wsl: `# winget은 Windows 전용입니다\n# WSL에서는 apt, snap 등 Linux 패키지 관리자를 사용하세요`,
+      },
+      {
+        title: 'Microsoft Store로 설치 (권장)',
+        powershell: `# 아래 명령 실행 → Store가 열리면 [설치] 클릭\nStart-Process "ms-windows-store://pdp/?ProductId=9NBLGGH4NNS1"`,
+        wsl: `# winget은 Windows 전용입니다`,
+      },
+      {
+        title: 'PowerShell로 직접 설치 (Store 없을 때)',
+        powershell: `$pkg = "https://github.com/microsoft/winget-cli/releases/latest/download/Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle"\nInvoke-WebRequest -Uri $pkg -OutFile winget.msixbundle\nAdd-AppxPackage winget.msixbundle\nRemove-Item winget.msixbundle`,
+        wsl: `# winget은 Windows 전용입니다`,
+      },
+      {
+        title: '설치 후 버전 확인 (터미널 재시작 필요)',
+        powershell: `winget --version`,
+        wsl: `# winget은 Windows 전용입니다`,
+      },
+    ],
+  },
+  {
+    lang: 'Node.js 설치',
+    key: 'nodejs',
+    version: 'Node.js 20 LTS',
+    steps: [
+      {
+        title: '설치 여부 확인',
+        powershell: `node --version\nnpm --version\n# 오류 시 아래 방법으로 설치`,
+        wsl: `node --version && npm --version`,
+      },
+      {
+        title: 'winget으로 설치 (winget 있을 때)',
+        powershell: `winget install -e --id OpenJS.NodeJS.LTS`,
+        wsl: `# WSL에서는 아래 nvm 방법 권장`,
+      },
+      {
+        title: 'MSI로 직접 설치 (winget 없을 때)',
+        powershell: `# 공식 다운로드 페이지 열기\nStart-Process "https://nodejs.org/en/download/"\n# LTS (권장) → Windows Installer (.msi) 64-bit 선택 후 실행`,
+        wsl: `# WSL에서는 해당 없음 — 아래 nvm 방법 사용`,
+      },
+      {
+        title: 'nvm-windows로 설치 (버전 관리 필요 시)',
+        powershell: `# 1. https://github.com/coreybutler/nvm-windows/releases 에서\n#    nvm-setup.exe 다운로드 후 실행\n# 2. 새 PowerShell 열고:\nnvm install 20\nnvm use 20`,
+        wsl: `# nvm (WSL/Linux 버전 관리자)\ncurl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash\nsource ~/.bashrc\nnvm install 20\nnvm use 20`,
+      },
+      {
+        title: '설치 후 버전 확인 (터미널 재시작 필요)',
+        powershell: `node --version\nnpm --version`,
+        wsl: `node --version && npm --version`,
+      },
+    ],
+  },
+  {
     lang: 'Python',
     key: 'python',
     version: 'Python 3.12',
