@@ -70,6 +70,13 @@ body {
   font-family: var(--editor-font) !important;
 }
 
+/* iOS Safari 입력 포커스 시 자동 확대 방지: font-size 16px 미만이면 뷰포트가 줌됨 */
+input,
+textarea,
+select {
+  font-size: max(16px, 1em);
+}
+
 /* 키보드 포커스 표시 (접근성) */
 button:focus-visible,
 a:focus-visible,
